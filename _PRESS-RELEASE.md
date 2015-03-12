@@ -1,4 +1,4 @@
-# Ribbet #
+# Ribbit #
 
 <!-- 
 > This material was originally posted [here](http://www.quora.com/What-is-Amazons-approach-to-product-development-and-product-management). It is reproduced here for posterities sake.
@@ -39,10 +39,10 @@ Once the project moves into development, the press release can be used as a touc
   "Is this thing on? With Ribbit, it's always on. I'm always on." - SungMin
 
 ## How to Get Started ##
-  Visit ribbit.io, create a room, and invite your audience to join you. 
+  Visit our website, create a room, and invite your audience to join you. 
 
 ## Customer Quote ##
   "It makes talking in lecture feel like a lunch table converation" - satisfied customer #1218817 and counting
 
 ## Closing and Call to Action ##
-  > Wrap it up and give pointers where the reader should go next.
+  "Give your audience a voice. Use Ribbit!"
