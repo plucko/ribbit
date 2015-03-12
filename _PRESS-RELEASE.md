@@ -32,13 +32,15 @@ Once the project moves into development, the press release can be used as a touc
   > Describe how your product elegantly solves the problem.
 
 ## Quote from You ##
-  > A quote from a spokesperson in your company.
+  "Is this thing on? With Ribbit, it's always on. I'm always on." - SungMin
 
 ## How to Get Started ##
   > Describe how easy it is to get started.
 
 ## Customer Quote ##
-  > Provide a quote from a hypothetical customer that describes how they experienced the benefit.
+  "It makes talking in lecture feel like a lunch table converation" - satisfied customer #1218817 and counting
+  "I'm happy" -Fred Zirdung
 
 ## Closing and Call to Action ##
   > Wrap it up and give pointers where the reader should go next.
+
