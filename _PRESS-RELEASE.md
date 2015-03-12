@@ -1,4 +1,4 @@
-# Project Name #
+# Ribbet #
 
 <!-- 
 > This material was originally posted [here](http://www.quora.com/What-is-Amazons-approach-to-product-development-and-product-management). It is reproduced here for posterities sake.
@@ -17,28 +17,32 @@ Once the project moves into development, the press release can be used as a touc
  -->
  
 ## Heading ##
-  > Name the product in a way the reader (i.e. your target customers) will understand.
+  Ribbit.
 
 ## Sub-Heading ##
-  > Describe who the market for the product is and what benefit they get. One sentence only underneath the title.
+  A mic in every hand; hear anyone in the audience instantly.
 
 ## Summary ##
-  > Give a summary of the product and the benefit. Assume the reader will not read anything else so make this paragraph good.
+  Ribbit gives everyone in the audience an equal voice by turning each person's laptop or phone into a mic. No waiting for mics to be passed. No waiting for the mic to turn on. No need for mics at all! 
+
+  Ribbit creates an immersive educational experience. The audience can express interest (or disinterest) in questions as they are asked, provide question feedback and initiate followup. As the speaker talks, we convert the sound to text, which can be displayed realtime or stored for later.
+
+  Plus, Ribbit gives you analytics on all the above: who talks, when, for how long, etc.
 
 ## Problem ##
-  > Describe the problem your product solves.
+  It is hard to get mics to people who want to ask questions and make sure they are actually audible once they have the mic. This detracts from the natural flow of the presentation and takes away from the learning experience. 
 
 ## Solution ##
-  > Describe how your product elegantly solves the problem.
+  We turn everyone's phones and laptops into a mic.
 
 ## Quote from You ##
-  > A quote from a spokesperson in your company.
+  "Is this thing on? With Ribbit, it's always on. I'm always on." - SungMin
 
 ## How to Get Started ##
-  > Describe how easy it is to get started.
+  Visit ribbit.io, create a room, and invite your audience to join you. 
 
 ## Customer Quote ##
-  > Provide a quote from a hypothetical customer that describes how they experienced the benefit.
+  "It makes talking in lecture feel like a lunch table converation" - satisfied customer #1218817 and counting
 
 ## Closing and Call to Action ##
   > Wrap it up and give pointers where the reader should go next.
