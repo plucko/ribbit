@@ -1,0 +1,20 @@
+// Bower.json and .bowerrc together make sure to install angular and
+// angular-route into client/lib. If client/lib does not exist, bower
+// will create the directory.
+
+{
+  "name": "solo",
+  "version": "0.0.0",
+  "authors": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "client/lib"
+  ],
+  "dependencies": {
+    "angular": "~1.2.18",
+    "angular-route": "~1.2.18"
+  }
+}
