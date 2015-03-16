@@ -1,0 +1,26 @@
+{
+  "name": "ribbit",
+  "version": "0.0.0",
+  "description": "A mic in every hand; hear anyone in the audience instantly.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "ws": "^0.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plucky-oatmeal/plucky-oatmeal.git"
+  },
+  "author": "plucky-oatmeal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/plucky-oatmeal/plucky-oatmeal/issues"
+  },
+  "homepage": "https://github.com/plucky-oatmeal/plucky-oatmeal"
+}
