@@ -8,6 +8,18 @@ micControllers.controller('IndexControl', ['$scope', function($scope) {
 
 }]);
 
+micControllers.controller('MainControl', ['$scope', function($scope) {
+
+  $scope.createRoom = function() {
+    console.log('let\'s create a room!');
+  }
+
+  $scope.joinRoom = function(room) {
+    console.log('let\'s join a room!', room);
+  };
+
+}]);
+
 micControllers.controller('AudienceControl', ['$scope', function($scope) {
   $scope.toggle = function() {
     console.log("toggle");

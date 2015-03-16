@@ -18,7 +18,11 @@ micApp.config(['$routeProvider',
         templateUrl: 'presenter/presenter.html',
         controller: 'PresenterControl'
       })
+      .when('/main', {
+        templateUrl: 'main/main.html',
+        controller: 'MainControl'
+      })
       .otherwise({
-        redirectTo: '/index'
+        redirectTo: '/main'
       });
 }]);
