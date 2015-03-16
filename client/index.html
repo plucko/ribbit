@@ -1,15 +1,13 @@
 <!doctype html>
-<html>
+<html ng-app="micApp">
   <head>
-    <script src="webrtc.js"></script>
+    <meta charset="utf-8" />
+    <script src="lib/angular/angular.js"></script>
+    <script src="lib/angular-route/angular-route.js"></script>
+    <script src="controllers.js"></script>
+    <script src="app.js"></script>
   </head>
-  <body>
-    <video id="local-video" autoplay muted style="width:40%;"></video>
-    <video id="remote-video" autoplay muted style="width:40%;"></video>
-    <br>
-    <input type="button" onclick="start(true)" id="start" value="Start Video">
-    <script type="text/javascript">
-      pageReady();
-    </script>
+  <body ng-controller='IndexControl'>
+    <div ng-view></div>
   </body>
 </html>
