@@ -8,14 +8,17 @@ micControllers.controller('IndexControl', ['$scope', function($scope) {
 
 }]);
 
-micControllers.controller('MainControl', ['$scope', function($scope) {
-
+micControllers.controller('MainControl', ['$scope', '$location', 'Room', function($scope, $location, Room) {
+  $scope.data = [];
   $scope.createRoom = function() {
+    $location.url('/presenter');
     console.log('let\'s create a room!');
   }
 
   $scope.joinRoom = function(room) {
+    $location.url('/audience');
     console.log('let\'s join a room!', room);
+    // Room.joinRoom(room);
   };
 
 }]);

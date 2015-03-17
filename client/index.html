@@ -5,9 +5,11 @@
     <script src="lib/angular/angular.js"></script>
     <script src="lib/angular-route/angular-route.js"></script>
     <script src="controllers.js"></script>
+    <script src="services/services.js"></script>
     <script src="app.js"></script>
   </head>
   <body ng-controller='IndexControl'>
+    <p> {{ message }} </p>
     <div ng-view></div>
   </body>
 </html>
