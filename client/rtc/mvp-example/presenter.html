@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Presenter</title>
+    <script src="../rtc-normalizer.js"></script>
+    <script src="../base-rtc.js"></script>
+    <script src="../presenter-rtc.js"></script>
+  </head>
+  <body>
+    <h1>Audience Video</h1>
+    <div id="videos"></div>
+    <!-- <video id="remote-video" autoplay muted style="width:40%;"></video> -->
+    <!-- <video id="local-video" autoplay muted style="width:40%;"></video> -->
+    <!-- <video id="remote-video" autoplay muted style="width:40%;"></video> -->
+    <script type="text/javascript">
+      var addVideoElem = function (stream) {
+        console.log('adding video!')
+        var vid = document.createElement('video');
+        vid.muted = true;
+        vid.autoplay = true;
+        vid.src = window.URL.createObjectURL(event.stream); 
+        document.getElementById('videos').appendChild(vid);
+      }
+      var presenterRTC = new RibbitPresenterRTC('fred', {
+        onaddstream: function (event) {
+          addVideoElem(event.stream);
+        }
+      });
+    </script>
+  </body>
+</html>
