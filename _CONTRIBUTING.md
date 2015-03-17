@@ -16,8 +16,8 @@
   - (cleanup) ...
   - (test) ...
   - (doc) ...
-1. When you've finished with your fix or feature, Rebase upstream changes into your branch. submit a [pull request][]
-   directly to master. Include a description of your changes.
+1. When you've finished with your fix or feature, rebase upstream changes into your branch. 
+1. Submit a [pull request][] directly to master. Include a description of your changes.
 1. Your pull request will be reviewed by another maintainer. The point of code
    reviews is to help keep the codebase clean and of high quality and, equally
    as important, to help you grow as a programmer. If your code reviewer
@@ -33,7 +33,7 @@
 Use github’s interface to make a fork of the repo, then add that repo as an upstream remote:
 
 ```
-git remote add upstream https://github.com/hackreactor-labs/<NAME_OF_REPO>.git
+git remote add upstream https://github.com/plucky-oatmeal/plucky-oatmeal.git
 ```
 
 ### Cut a namespaced feature branch from master
@@ -82,26 +82,36 @@ changes.
 ### Rebase upstream changes into your branch
 
 Once you are done making changes, you can begin the process of getting
-your code merged into the main repo. Step 1 is to rebase upstream
-changes to the master branch into yours by running this command
-from your branch:
+your code merged into the main repo. Step 1 is to merge changes to the
+upstream master branch into your master branch by running this command
+from your master branch:
 
 ```bash
-git pull --rebase upstream master
+git pull upstream master
+```
+If you did all your development in a separate feature branch, there should
+not be any merge conflicts. If there are, resolve them before moving on
+so that your local master branch is up to date with the upstream master.
+
+Now prepare to get the up-to-date changes in master into your feature 
+branch by rebasing. To protect your work in case the rebasing doesn't
+work out as you expect, create a 'quarantine' branch from your feature
+branch. You will use this new branch solely for rebasing.
+
+From your new quarantine branch, run the following command to rebase
+changes from master:
+
+```bash
+git rebase master
 ```
 
-This will start the rebase process. You must commit all of your changes
-before doing this. If there are no conflicts, this should just roll all
-of your changes back on top of the changes from upstream, leading to a
-nice, clean, linear commit history.
-
-If there are conflicting changes, git will start yelling at you part way
-through the rebasing process. Git will pause rebasing to allow you to sort
-out the conflicts. You do this the same way you solve merge conflicts,
-by checking all of the files git says have been changed in both histories
-and picking the versions you want. Be aware that these changes will show
-up in your pull request, so try and incorporate upstream changes as much
-as possible.
+You might run into conflicts here. If there are conflicting changes, git 
+will start yelling at you part way through the rebasing process. Git will 
+pause rebasing to allow you to sort out the conflicts. You do this the same 
+way you solve merge conflicts, by checking all of the files git says have 
+been changed in both histories and picking the versions you want. <!-- Be aware 
+that these changes will show up in your pull request, so try and incorporate
+upstream changes as much as possible. -->
 
 You pick a file by `git add`ing it - you do not make commits during a
 rebase.
@@ -119,6 +129,39 @@ make sure they work also.
 
 If rebasing broke anything, fix it, then repeat the above process until
 you get here again and nothing is broken and all the tests pass.
+
+Once everything looks good, we run rebase again from the quarantine branch
+in order to compress the commit history. This allows your pull request to 
+contain only one commit. 
+
+First find the sha1 of the most recent commit from upstream master. Make 
+sure you have this commit in your local master. If you don't, it means that 
+someone has committed a change since you last pulled from master and you need
+to pull them into your local master (following the steps we just laid out).
+
+Once you have the sha1 of the most recent upstream master commit, run this
+command to 'squish' the commits between that commit and your most recent 
+commit into a single commit (do not forget the i!):
+
+```bash
+git rebase -i <sha1>
+```
+Running this command pops up a text editor with a list of the commit messages
+between the commit for the sha1 you entered and your most recent commit. Choose
+to 'pick' the first commit and 'squash' the others (git will display more info 
+in your text editor on how this works). Don't worry about the text of the message
+itself. Save and close the file when you are done.
+
+Git will pop up another text editor right away. This is where you add the actual 
+commit message for the commit in your pull request. Make sure it conforms to the 
+guidelines above. Save and close.
+
+Review your git history to make sure it looks good. If it does, push your commit
+to your remote fork (origin):
+
+```bash
+git push origin quarantine --force
+```
 
 ### Make a pull request
 

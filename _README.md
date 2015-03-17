@@ -44,6 +44,14 @@ bower install
 
 ### Roadmap
 
+1. Access Microphone
+1. Grab data from microphone
+1. Transmit Data
+1. Server Maintains Connection
+1. Passes through server
+1. Servers serve to presenter's client
+1. Pass audio data to system audo output
+
 View the project roadmap [here](LINK_TO_PROJECT_ISSUES)
 
 
