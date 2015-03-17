@@ -23,7 +23,7 @@
     "bcrypt-nodejs": "0.0.3",
     "express": "4.12.3",
     "passport": "^0.2.1",
-    "passport-github": "^0.1.5"
+    "passport-github": "^0.1.5",
   },
   "devDependencies": {},
   "scripts": {
