@@ -57,7 +57,7 @@ app.get('/auth/callback',
 );
 
 // Lecturer post room logic
-app.post('/rooms', util.checkUser, util.checkRoom, function(req, res, rooms){
+app.post('/rooms', util.checkUser, function(req, res, rooms){
   handler.checkRoom(req, res, rooms);
 });
 
