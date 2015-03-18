@@ -6,12 +6,27 @@ micServices.factory('Room', ['$http', '$q','$timeout','$http','$location','$root
 function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   var result = {};
 
-  result.getRoomsPresenter = function(room){
+  result.tryToMakeRoom = function(room){
     // Initialize a new promise
     var deferred = $q.defer();
 
+    // var req = {
+    //   $routeProvider
+    //     // .when('/login', {
+    //     //   templateUrl: 'login.html',
+    //     //   controller: 'LoginControl'
+    //     // })
+    //     .when('/audience', {
+    //       templateUrl: 'audience/audience.html',
+    //       controller: 'AudienceControl',
+    //       resolve: {
+    //         roomCheck: checkRoomExists
+    //       }
+    //     })
+    // }
+
     // Make an AJAX call to check if the user is logged in
-    $http.get('/roomCheck' + '/' + room).success(function(user){
+    $http.post('/roomCheck', {data: {room: room}}).success(function(user){
       // Authenticated
       
       // Interacts with server code because server will be written something like
@@ -39,7 +54,7 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   // access to the presenter's view and controller will be turned away if they
   // are not the presenter.
 
-  result.tryToMakeRoom = function() {
+  result.returnPresenter = function() {
     // Initialize a new promise
     var deferred = $q.defer();
 

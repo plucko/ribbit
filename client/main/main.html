@@ -1,4 +1,5 @@
-<button ng-click="createRoom()">Create a room</button>
+<input ng-model="roomToCreate" type="text">
+<button ng-click="createRoom(roomToCreate)">Create a room</button>
 <form ng-submit="joinRoom(password)">
   <input ng-model="password" placeholder="Enter room's password"></input>
 </form>
