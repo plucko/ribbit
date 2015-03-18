@@ -1,20 +1,18 @@
 var micApp = angular.module('micApp', [
   'ngRoute',
-  'micControllers'
+  'micControllers',
+  'micServices'
 ]);
 
 micApp.config(['$routeProvider', 
   function($routeProvider) {
+
     $routeProvider
-      .when('/index', {
-        templateUrl: 'index.html',
-        controller: 'IndexControl'
-      })
-      .when('/joinRoom', {
+      .when('/audience', {
         templateUrl: 'audience/audience.html',
         controller: 'AudienceControl'
       })
-      .when('/createRoom', {
+      .when('/presenter', {
         templateUrl: 'presenter/presenter.html',
         controller: 'PresenterControl'
       })

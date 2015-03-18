@@ -45,4 +45,6 @@ Once the project moves into development, the press release can be used as a touc
   "It makes talking in lecture feel like a lunch table converation" - satisfied customer #1218817 and counting
 
 ## Closing and Call to Action ##
-  "Give your audience a voice. Use Ribbit!"
+  > Wrap it up and give pointers where the reader should go next.
+
+test!!

@@ -1,13 +1,29 @@
 {
   "name": "ribbit",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A mic in every hand; hear anyone in the audience instantly.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "dependencies": {
-    "ws": "^0.7.1"
+    "ws": "^0.7.1",
+    "body-parser": "^1.12.2",
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-uglify": "^0.8.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-shell": "^1.1.2",
+    "grunt-contrib-cssmin": "^0.12.2",
+    "grunt-nodemon": "^1.3.7",
+    "grunt-mocha-test": "^0.12.7",
+    "mongoose": "~3.8.25",
+    "bluebird": "2.9.14",
+    "bcrypt-nodejs": "0.0.3",
+    "express": "4.12.3",
+    "passport": "^0.2.1",
+    "passport-github": "^0.1.5",
   },
   "devDependencies": {},
   "scripts": {
@@ -16,8 +32,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/plucky-oatmeal/plucky-oatmeal.git"
-  },
-  "author": "plucky-oatmeal",
+  }
+  "author": "Andy Kitson, Brian Hsu, Ryan Atkinson, SungMin Chang",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/plucky-oatmeal/plucky-oatmeal/issues"
