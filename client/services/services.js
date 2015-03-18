@@ -6,24 +6,14 @@ micServices.factory('Room', ['$http', '$q','$timeout','$http','$location','$root
 function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   var result = {};
 
+
+  // Taken and adapted from source code found in article
+  // https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs
+  
+
   result.tryToMakeRoom = function(room){
     // Initialize a new promise
     var deferred = $q.defer();
-
-    // var req = {
-    //   $routeProvider
-    //     // .when('/login', {
-    //     //   templateUrl: 'login.html',
-    //     //   controller: 'LoginControl'
-    //     // })
-    //     .when('/audience', {
-    //       templateUrl: 'audience/audience.html',
-    //       controller: 'AudienceControl',
-    //       resolve: {
-    //         roomCheck: checkRoomExists
-    //       }
-    //     })
-    // }
 
     // Make an AJAX call to check if the user is logged in
     $http.post('/roomCheck', {data: {room: room}}).success(function(user){
@@ -35,7 +25,7 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
       if (user !== '0')
 
         /*$timeout(deferred.resolve, 0);*/
-        deferred.resolve();
+        deferred.resolve(user);
 
       // Not Authenticated
       else {
@@ -68,7 +58,7 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
       if (user !== '0')
 
         /*$timeout(deferred.resolve, 0);*/
-        deferred.resolve();
+        deferred.resolve(user);
 
       // Not Authenticated
       else {

@@ -23,7 +23,7 @@ app.post('/roomCheck', function(req, res) {
 
 app.get('/isPresenter', function(req, res) {
   console.log('in the isPresenter get route, checking if user is the presenter for the room');
-  res.send('1');
+  res.send('PresenterBrian');
 });
 
 app.post('/joinRoom', function(req, res) {
