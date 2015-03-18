@@ -49,7 +49,7 @@ exports.signupUser = function(req, res){
 // When user logout
 exports.logoutUser = function(req, res){
   req.session.destroy(function(){
-    res.send('0');
+    res.redirect('/');
   });
 };
 
@@ -65,11 +65,11 @@ exports.checkRoom = function(req, res, rooms){
       return;
     }
   }
-  room[roomName] = {
+  rooms[roomName] = {
     presenter: lecturerName,
     audience : {}
   };
-  res.send('0');
+  res.send('1');
   return room;
 };
 
