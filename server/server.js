@@ -7,14 +7,15 @@ app.get('/', function(req, res) {
   res.send('connected');
 });
 
-app.get('/roomCheck', function(req, res) {
+app.get('/roomCheck/*', function(req, res) {
+  console.log(req.url);
   console.log('in the roomCheck get route, checking if room exists');
-  res.send('0');
+  res.send('1');
 });
 
 app.get('/isPresenter', function(req, res) {
   console.log('in the isPresenter get route, checking if user is the presenter for the room');
-  res.send('0');
+  res.send('1');
 });
 
 app.post('/joinRoom', function(req, res) {

@@ -17,7 +17,7 @@ micApp.config(['$routeProvider',
       var deferred = $q.defer();
 
       // Make an AJAX call to check if the user is logged in
-      $http.get('/roomCheck').success(function(user){
+      $http.get('/roomCheck/testRoom').success(function(user){
         // Authenticated
         
         // Interacts with server code because server will be written something like
@@ -89,10 +89,10 @@ micApp.config(['$routeProvider',
       })
       .when('/presenter', {
         templateUrl: 'presenter/presenter.html',
-        controller: 'PresenterControl',
-        resolve: {
-          presenterCheck: checkIfPresenter
-        }
+        controller: 'PresenterControl'
+        // resolve: {
+        //   presenterCheck: checkIfPresenter
+        // }
       })
       .when('/main', {
         templateUrl: 'main/main.html',
