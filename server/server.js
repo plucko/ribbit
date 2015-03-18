@@ -7,7 +7,6 @@ var handler = require('./request-handler.js');
 var express = require('express');
 var bodyParser = require('body-parser')
 
-
 var app = express();
 
 // Define available rooms
@@ -58,7 +57,7 @@ passport.serializeUser(function(user, done){
 
 passport.deserializeUser(function(user, done){
   done(null, user);
-});
+}
 
 // In auth page to authenticate, might need to move it. 
 app.get('/auth', passport.authenticate('github'));
@@ -72,7 +71,6 @@ app.get('/auth/callback',
 app.post('/rooms', util.checkUser, util.checkRoom, function(req, res, rooms){
   handler.checkRoom(req, res, rooms);
 });
-
 
 var server = app.listen(8000, function(){
     console.log('App connected');

@@ -16,7 +16,7 @@ exports.loginUser = function(req, res){
           } else {
             res.send('0');
           }
-        })
+        });
       }
     });
 };
@@ -49,7 +49,7 @@ exports.signupUser = function(req, res){
 // When user logout
 exports.logoutUser = function(req, res){
   req.session.destroy(function(){
-    res.redirect('/');
+    res.send('0');
   });
 };
 
@@ -72,4 +72,3 @@ exports.checkRoom = function(req, res, rooms){
   res.send('1');
   return room;
 };
-
