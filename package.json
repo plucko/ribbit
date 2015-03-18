@@ -62,4 +62,20 @@
     "passport-github": "^0.1.5",
     "ws": "^0.7.1"
   }
+    "passport-github": "^0.1.5",
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plucky-oatmeal/plucky-oatmeal.git"
+  }
+  "author": "Andy Kitson, Brian Hsu, Ryan Atkinson, SungMin Chang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/plucky-oatmeal/plucky-oatmeal/issues"
+  },
+  "homepage": "https://github.com/plucky-oatmeal/plucky-oatmeal"
 }
