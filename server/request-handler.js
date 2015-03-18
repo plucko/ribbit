@@ -49,7 +49,7 @@ exports.signupUser = function(req, res){
 // When user logout
 exports.logoutUser = function(req, res){
   req.session.destroy(function(){
-    res.send('0');
+    res.redirect('/');
   });
 };
 
