@@ -61,7 +61,6 @@ app.post('/rooms', util.checkUser, function(req, res, rooms){
   handler.checkRoom(req, res, rooms);
 });
 
-
 var server = app.listen(8000, function(){
     console.log('App connected');
 });
