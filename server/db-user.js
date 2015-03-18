@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var bluebird = require('bluebird');
 
+// Table Schema 
 var userSchema = mongoose.Schema({
   username: { type: String, required: true, index: { unique: true } },
   password: {type: String, required: true}
@@ -16,6 +17,7 @@ User.comparePassword = function(inputPassword, savedPassword, cb){
   });
 };
 
+// Use bcrypt to save all password
 userSchema.pre('save', function(next){
   var cipher = bluebird.promisify(bcrypt.hash);
   return cipher(this.password, null, null).bind(this)
