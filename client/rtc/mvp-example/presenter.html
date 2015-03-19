@@ -7,6 +7,43 @@
     <script src="../rtc-normalizer.js"></script>
     <script src="../base-rtc.js"></script>
     <script src="../presenter-rtc.js"></script>
+    <script type="text/javascript">
+      var addVideoElem = function (stream) {
+        console.log('adding video!')
+        var vid = document.createElement('video');
+        vid.muted = true;
+        vid.autoplay = true;
+        vid.src = window.URL.createObjectURL(stream); 
+        document.getElementById('videos').appendChild(vid);
+      }
+
+      angular.module('ribbitPresenterRTC')
+        .controller('presenterCtrl', function($scope, presenterRTC) {
+          $scope.streams = [];
+
+          presenterRTC.signalServer.onopen = function () {
+            presenterRTC.connect('aviary', 'fred');  // presenter subclass knows how to handle this
+          }
+
+          presenterRTC.on('onaddstream', function (event) {
+            console.log('got remote stream!');
+            addVideoElem(event.stream);
+            // var streamSrc = $sce.trustAsResourceUrl(window.URL.createObjectURL(event.stream));
+            // $scope.streams.push(streamSrc);
+            // $scope.$apply();
+          });
+
+          // presenterRTC.on('removeremotestream', function (pc) {})
+          // presenterRTC.on('audienceConnect', function (pc) {})
+          // presenterRTC.on('audienceLeave', function (pc) {})
+          // presenterRTC.on('audience speak', function (pc) {})
+          // presenterRTC.on('audience stop speaking', function (pc) {})
+          // presenter.connect('backbone lecture', 'fred', function() {'success!'});
+          // presenterRTC.closeAllConnections()
+        })
+
+
+    </script>
   </head>
   <body ng-app="ribbitPresenterRTC" ng-controller="presenterCtrl">
     <div id="videos"></div>
@@ -15,20 +52,5 @@
     <div ng-repeat="stream in streams">
       <video autoplay muted src="{{stream}}" style="width:40%;"></video>
     </div> -->
-    <script type="text/javascript">
-      // var addVideoElem = function (stream) {
-      //   console.log('adding video!')
-      //   var vid = document.createElement('video');
-      //   vid.muted = true;
-      //   vid.autoplay = true;
-      //   vid.src = window.URL.createObjectURL(event.stream); 
-      //   document.getElementById('videos').appendChild(vid);
-      // }
-      // var presenterRTC = new RibbitPresenterRTC('fred', {
-      //   onaddstream: function (event) {
-      //     addVideoElem(event.stream);
-      //   }
-      // });
-    </script>
   </body>
 </html>
