@@ -46,13 +46,8 @@ var makeBaseRTC = function (options) {
   // and have access to our local media stream (if we have one). It's up
   // to the caller to generate an offer/answer if that's what it
   // wants to do.
-  baseRTC.getPeerConnection = function (remoteUser) {
-    if (!remoteUser) throw new Error('baseRTC.getPeerConnection: cannot create new peer connection without remote user');
-
-    // return already established connection if we have one
-    if (this.peerConnections[remoteUser]) {
-      return this.peerConnections[remoteUser];
-    }
+  baseRTC.createPeerConnection = function (remoteUser) {
+    if (!remoteUser) throw new Error('baseRTC.createPeerConnection: cannot create new peer connection without remote user');
 
     var pc = new RTCPeerConnection(this.peerConnectionConfig);
 
@@ -99,7 +94,7 @@ var makeBaseRTC = function (options) {
 
   // Create peer connection to a specific user and send them an offer. 
   baseRTC.connectToUser = function (remoteUser) {
-    var pc = this.getPeerConnection(remoteUser);
+    var pc = this.createPeerConnection(remoteUser);
     pc.createOffer(function(description) {
       pc.setLocalDescription(description, function () {  //must set local desc before sending offer!
         this._send(description, remoteUser, 'offer'); 
@@ -137,12 +132,15 @@ var makeBaseRTC = function (options) {
     // Super useful for debugging. Most issues are somewhere in this function.
     console.log(data);
 
-    // get peer connection for sender (or create one if we don't have one yet)
-    var pc = this.getPeerConnection(data.sender);
+    // For offers and request-for-offers, we create a new peer connection, 
+    // even if we already have one. For ice candidates and answers, we use
+    // the peer connection we already have.
+    var pc;
 
     // Respond to offer with our answer, updating our remote and local descriptions
     // in the process
     if (data.type === 'offer') {
+      pc = this.createPeerConnection(data.sender);
       var self = this; //for _send below
       pc.setRemoteDescription(new RTCSessionDescription(data.contents), function () {
         pc.createAnswer(function (answer) {
@@ -152,17 +150,20 @@ var makeBaseRTC = function (options) {
         });
       });
 
+    // Send an offer if asked  
+    } else if (data.type === 'request-for-offer') {
+      pc = this.createPeerConnection(data.sender);
+      this.connectToUser(data.contents.requester);
+
     // Respond to answers by just updating our remote description 
     } else if (data.type === 'answer') {
+      pc = this.peerConnections[data.sender];
       pc.setRemoteDescription(new RTCSessionDescription(data.contents));
 
     // Add ICE Candidates as they come in -- the remote peer's oneicecandidate handler sends these
     } else if (data.type === 'ice') {
+      pc = this.peerConnections[data.sender];
       pc.addIceCandidate(new RTCIceCandidate(data.contents.ice));
-
-    // Send an offer if asked  
-    } else if (data.type === 'request-for-offer') {
-      this.connectToUser(data.contents.requester);
 
     // Oops! Where'd this message come from?
     } else {
