@@ -11,17 +11,35 @@
 var makeBaseRTC = function (options) {
   var baseRTC = {};
 
+  // Track tasks that need to be done before we are 'ready', then
+  // run more tasks once we're done with setup
+  var setupTasks = {};
+  var onSetupComplete;
+  baseRTC.ready = function (fn) {
+    onSetupComplete = fn;
+    //maybe we're ready now!
+    maybeReady(); 
+  }
+  // Called after each setup tasks is complete. If others are done
+  // then we run our setupComplete function
+  var maybeReady = function () {
+    var done = true;
+    for (var task in setupTasks) {
+      done = done && setupTasks[task]; 
+    }
+    if (done) onSetupComplete(); 
+  }
+
   // Connect to our signal server. We talk with other clients over 
   // this server in order to establish peer connections to them.
   baseRTC.signalServer = new WebSocket(options.signalServer);
+  //Wait for signal server connection to open before we're "ready"
+  setupTasks.signalServer = false;
+  baseRTC.signalServer.onopen = function () {
+    setupTasks.signalServer = true;
+    maybeReady();
+  }
 
-  // Save off config RTCPeerConnection needs to know how to connect
-  // to other clients
-  baseRTC.peerConnectionConfig = options.peerConnectionConfig;
-
-  // Maintain multiple peer connections, indexed by remote user
-  baseRTC.peerConnections = {};
-  
   // If this client will be streaming media to a peer, getMedia should be
   // called before initiating the handshake (offer/answer) process. (Adding
   // a stream after connection is established requires the connection to be 
@@ -33,14 +51,29 @@ var makeBaseRTC = function (options) {
   baseRTC.getMedia = function (constraints, success, error) {
     constraints = constraints || { video: true, audio: true };
     error = error || function () {};
+
+    setupTasks.getMedia = false;
     
     var mediaSuccess = function (stream) {
       this.localStream = stream; 
       success && success(stream);
+
+      setupTasks.getMedia = true;
+      maybeReady();
+
     }.bind(this);
 
     navigator.getUserMedia(constraints, mediaSuccess, error)
   };
+
+  // Save off config RTCPeerConnection needs to know how to connect
+  // to other clients
+  baseRTC.peerConnectionConfig = options.peerConnectionConfig;
+
+  // Maintain multiple peer connections, indexed by remote user
+  baseRTC.peerConnections = {};
+  
+
 
   // Create a peer connection, and set it up to trickle ICE candidates
   // and have access to our local media stream (if we have one). It's up
@@ -222,7 +255,7 @@ var makeBaseRTC = function (options) {
 //   }]);
 // ```
 
-angular.module('ribbitBaseRTC', [])
+angular.module('ribbitBaseRTC', ['ngSanitize'])
   .provider('baseRTC', function () {
     var signalServer;
     this.setSignalServer = function(url) {

@@ -18,28 +18,34 @@
       }
 
       angular.module('ribbitPresenterRTC')
-        .controller('presenterCtrl', function($scope, presenterRTC) {
-          $scope.streams = [];
+        .controller('presenterCtrl', function($scope, $sce, presenterRTC) {
+          $scope.connections = [];
 
-          presenterRTC.signalServer.onopen = function () {
-            presenterRTC.connect('aviary', 'fred');  // presenter subclass knows how to handle this
-          }
-
-          presenterRTC.on('onaddstream', function (event) {
-            console.log('got remote stream!');
-            addVideoElem(event.stream);
-            // var streamSrc = $sce.trustAsResourceUrl(window.URL.createObjectURL(event.stream));
-            // $scope.streams.push(streamSrc);
-            // $scope.$apply();
+          // only connect once our RTC manager is ready!
+          presenterRTC.ready(function () {
+            // the first arg here is teh room object, the second is who we're connecting as
+            presenterRTC.connect({ name: 'aviary', presenter: 'fred'}, 'fred'); 
           });
 
-          // presenterRTC.on('removeremotestream', function (pc) {})
-          // presenterRTC.on('audienceConnect', function (pc) {})
-          // presenterRTC.on('audienceLeave', function (pc) {})
-          // presenterRTC.on('audience speak', function (pc) {})
-          // presenterRTC.on('audience stop speaking', function (pc) {})
-          // presenter.connect('backbone lecture', 'fred', function() {'success!'});
-          // presenterRTC.closeAllConnections()
+          // register event handlers for peer connection events. MDN has a description of these events.
+          // the remote user and peerconnection object are the last two arguments for any handler
+          presenterRTC.on('onaddstream', function (event, remoteUser, pc) {
+            // For onaddstream, you need to look in event.stream to get the media stream
+            // See audience-1.html for description of trustAsResourceUrl and createObjectURL -- you need both!
+            // NOTE: this doesn't yet seem to work when the stream is remote, though I'm pretty sure it should.
+            // if you don't go through angular and instead just set the src w/vanillaJS it does work, so things
+            // are fine on the RTC side...
+            var stream = $sce.trustAsResourceUrl(window.URL.createObjectURL(event.stream));
+            var connection = {
+              stream: stream,
+              user: remoteUser
+            };
+            $scope.connections.push(connection)
+
+            // must call $scope.$apply so angular knows to run a digest
+            $scope.$apply();
+          });
+
         })
         .config(['baseRTCProvider', function(baseRTCProvider) {
           console.log('hey! in the confige')
@@ -58,11 +64,12 @@
     </script>
   </head>
   <body ng-app="ribbitPresenterRTC" ng-controller="presenterCtrl">
-    <div id="videos"></div>
-<!--     <h1>Audience Video</h1>
-    Stream count: {{streams.length}}
-    <div ng-repeat="stream in streams">
-      <video autoplay muted src="{{stream}}" style="width:40%;"></video>
-    </div> -->
+    <h1>Audience Video</h1>
+    Connections count: {{connections.length}}
+    <div ng-repeat="connection in connections">
+
+      <video autoplay muted ng-src="{{connection.stream}}" style="width:40%;"></video>
+      {{connection.user}}
+    </div>
   </body>
 </html>
