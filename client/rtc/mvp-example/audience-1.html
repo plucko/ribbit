@@ -1,24 +1,25 @@
 <!doctype html>
 <html>
   <head>
+    <script src="../../lib/angular/angular.js"></script>
     <script src="../rtc-normalizer.js"></script>
     <script src="../base-rtc.js"></script>
     <script src="../audience-rtc.js"></script>
   </head>
-  <body>
+  <body ng-app="ribbitAudienceRTC" ng-controller="audienceCtrl">
     <h1>Local Video</h1>
     <video id="local-video" autoplay muted style="width:40%;"></video>
     <!-- <video id="remote-video" autoplay muted style="width:40%;"></video> -->
     <br>
     <!-- <input type="button" onclick="connect()" id="start" value="Start Video"> -->
     <script type="text/javascript">
-      var audienceRTC = new RibbitAudienceRTC('sungmin', {
-        onmedia: function(stream) {
-          var videoEl = document.getElementById('local-video');
-          videoEl.src = window.URL.createObjectURL(stream);          
-          audienceRTC.connect();      
-        }
-      });
+      // var audienceRTC = new RibbitAudienceRTC('sungmin', {
+      //   onmedia: function(stream) {
+      //     var videoEl = document.getElementById('local-video');
+      //     videoEl.src = window.URL.createObjectURL(stream);          
+      //     audienceRTC.connect();      
+      //   }
+      // });
     </script>
   </body>
 </html>
