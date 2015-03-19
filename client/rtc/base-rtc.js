@@ -51,10 +51,14 @@ var makeBaseRTC = function (options) {
 
     var pc = new RTCPeerConnection(this.peerConnectionConfig);
 
-    // add peerConnection event handlers 
-    // update so we pass pc to each handler...
-    for (var e in this.handlers) {  
-      pc[e] = this.handlers[e]; // e.g. onaddstream
+    // Add peerConnection event handlers, e.g. onaddstream.
+    // Make the remote user and peerConnection object available to the handler
+    for (var e in this.handlers) {
+      pc[e] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        args.push(remoteUser, pc);
+        this.handlers[e].apply(undefined, args);
+      }.bind(this);
     }
 
     // Send ICE candidates to remote peer as they are added
@@ -64,7 +68,7 @@ var makeBaseRTC = function (options) {
       }
     }.bind(this);
 
-    // add our media stream if we have one
+    // Add our media stream if we have one
     if (this.localStream) {
       pc.addStream(this.localStream);
     }
@@ -175,16 +179,19 @@ var makeBaseRTC = function (options) {
   baseRTC.signalServer.onmessage = onMessage.bind(baseRTC);
 
   // Peer connections emit events, like onaddstream and onremovestream.
-  // We need to provide a way to allow consumers of our service to 
-  // register handlers for these events. This is how we're doing it 
-  // now -- not super robust, but it works.
+  // .on allows you to specify handlers for those events. The handler
+  // is added to any current peer connections. createPeerConnection
+  // adds hanlders specified here to any new peer connections it creates.
+  // Eventually, would like to support events not native to peer connections.
+  // Note: the remote user and peer connection object are the last two arguments
+  // passed to the handlers
   var handlers = baseRTC.handlers = {};
   baseRTC.on = function (event, handler) {
-    // add to existing connections
+    // Add to existing connections
     for (var u in this.peerConnections) {
       this.peerConnections[u][event] = handler;
     }
-    // save so we can add to peer connections we create in the future
+    // Save so we can add to peer connections we create in the future
     handlers[event] = handler //only one handler per event for now
   };
   return baseRTC;
