@@ -1,6 +1,6 @@
 // Check to see user login (normal login or Github)
 exports.checkUser = function(req, res, next){
-  if (req.session.username || req.user) {
+  if (req.user) {
     next();
   } else {
     res.send('0');

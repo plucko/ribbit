@@ -8,6 +8,10 @@ micApp.config(['$routeProvider',
   function($routeProvider) {
 
     $routeProvider
+      .when('/', {
+        templateUrl: 'auth/landing.html',
+        controller: 'AuthControl'
+      })
       .when('/audience', {
         templateUrl: 'audience/audience.html',
         controller: 'AudienceControl'
@@ -21,6 +25,6 @@ micApp.config(['$routeProvider',
         controller: 'MainControl'
       })
       .otherwise({
-        redirectTo: '/main'
+        redirectTo: '/'
       });
 }]);
