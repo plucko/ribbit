@@ -161,13 +161,29 @@ var makeBaseRTC = function (options) {
 };
 
 
-angular.module('ribbitBaseRTC', [])
-  // .factory('BaseRTC', function () {
-  //   return RibbitBaseRTC; //return constructor!
-  // })
-  .provider('baseRTC', function () {
-    console.log('hey! in the provider')
 
+// We use a provider because there is app-level configuration
+// that should not be hardcoded. Specifically, you must set:
+// - The url of your signal server (requires a socket connection)
+// - The ICE servers that peer connections will use in figuring out
+//   how to talk to each other.
+//
+// This is what a valid config looks like, though your specific config
+// will be different:
+//
+// angular.module('yourApp')
+//  .config(['baseRTCProvider', function(baseRTCProvider) {
+//     baseRTCProvider.setSignalServer('ws://localhost:3434'); 
+//     baseRTCProvider.setPeerConnectionConfig({
+//       'iceServers': [
+//         {'url': 'stun:stun.services.mozilla.com'}, 
+//         {'url': 'stun:stun.l.google.com:19302'}
+//       ]
+//     });
+//   }]);
+
+angular.module('ribbitBaseRTC', [])
+  .provider('baseRTC', function () {
     var signalServer;
     this.setSignalServer = function(url) {
       signalServer = url;
@@ -180,26 +196,19 @@ angular.module('ribbitBaseRTC', [])
 
     this.$get = [function () {
       if (!signalServer) {
-        throw Error('RTC Config Error: you must set the signal server in angular.config: BaseRTCProvider.setSignalServer(<url for your signal server>)');
+        throw Error('RTC Config Error: you must set the signal server in angular.config, e.g.: BaseRTCProvider.setSignalServer("url for your signal server>")');
       }
+      if (!peerConnectionConfig) {
+        throw Error('RTC Config Error: you must set the peer connection configu in angular.config, e.g.: BaseRTCProvider.setPeerConnectionConfig({iceServers: [{url: <url>}, {url: <url>}]})');
+      }
+
       return makeBaseRTC({ 
         signalServer: signalServer, 
         peerConnectionConfig: peerConnectionConfig 
       });
     }]  
   })
-  .config(['baseRTCProvider', function(baseRTCProvider) {
-    console.log('hey! in the confige')
 
-    baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
-
-    baseRTCProvider.setPeerConnectionConfig({
-      'iceServers': [
-        {'url': 'stun:stun.services.mozilla.com'}, 
-        {'url': 'stun:stun.l.google.com:19302'}
-      ]
-    });
-  }]);
 
 
 

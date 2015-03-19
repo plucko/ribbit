@@ -17,6 +17,18 @@
             });
           }
         })
+        .config(['baseRTCProvider', function(baseRTCProvider) {
+          console.log('hey! in the confige')
+
+          baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
+
+          baseRTCProvider.setPeerConnectionConfig({
+            'iceServers': [
+              {'url': 'stun:stun.services.mozilla.com'}, 
+              {'url': 'stun:stun.l.google.com:19302'}
+            ]
+          });
+        }]);
     </script>
   </head>
   <body ng-app="ribbitAudienceRTC" ng-controller="audienceCtrl">
