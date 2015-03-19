@@ -16,16 +16,16 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     var deferred = $q.defer();
 
     // Make an AJAX call to check if the user is logged in
-    $http.post('/roomCheck', {data: {room: room}}).success(function(user){
+    $http.post('/rooms', {data: {room: room}}).success(function(result){
       // Authenticated
       
       // Interacts with server code because server will be written something like
       // app.get('/loggedin', function(req, res) {
       // res.send(req.isAuthenticated() ? req.user : '0'); }); 
-      if (user !== '0')
+      if (result !== '0')
 
         /*$timeout(deferred.resolve, 0);*/
-        deferred.resolve(user);
+        deferred.resolve(result);
 
       // Not Authenticated
       else {
@@ -45,25 +45,13 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   // are not the presenter.
 
   result.returnPresenter = function() {
-    // Initialize a new promise
     var deferred = $q.defer();
 
-    // Make an AJAX call to check if the user is logged in
-    $http.get('/isPresenter').success(function(user){
-      // Authenticated
-      
-      // Interacts with server code because server will be written something like
-      // app.get('/loggedin', function(req, res) {
-      // res.send(req.isAuthenticated() ? req.user : '0'); }); 
-      if (user !== '0')
-
-        /*$timeout(deferred.resolve, 0);*/
-        deferred.resolve(user);
-
-      // Not Authenticated
+    $http.get('/isPresenter').success(function(result){
+      if (result !== '0')
+        deferred.resolve(result);
       else {
         $rootScope.message = 'You are not the presenter for this room.';
-        //$timeout(function(){deferred.reject();}, 0);
         deferred.reject();
         $location.url('/main');
       }
@@ -72,24 +60,83 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     return deferred.promise;
   };
 
+  return result;
 
-  // result.newLog = function() {
-  //   console.log('made it to Rooms log function');
-  // };
+}]);
 
-  // result.joinRoom = function(user) {
-    // console.log('made it to Room services joinroom');
-    // $http({
-    //   url: '127.0.0.1:8000/joinRoom',
-    //   method: 'POST',
-    //   data: JSON.stringify(user)
-    //   })
-    // .success(function(data, status, headers, config) {
-    //   return data;
-    // })
-    // .error(function(data, status, headers, config) {
-    //   return data;
+micServices.factory('Auth', ['$http', '$q','$timeout','$http','$location','$rootScope',
+function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
+  var result = {};
+
+  result.normalLogin = function(username, password){
+    var deferred = $q.defer();
+
+    $http.post('/login', {data: {username: username, password: password}}).success(function(result){
+      if (result !== '0') {
+        console.log('result !== 0', result);
+        deferred.resolve(result);
+      }
+      else {
+        $rootScope.message = 'Your username does not exist or your password was wrong.';
+        deferred.reject();
+        $location.url('/');
+      }
+    });
+
+    return deferred.promise;
+  };
+
+  result.signup = function(username, password){
+    var deferred = $q.defer();
+
+    $http.post('/signup', {data: {username: username, password: password}}).success(function(result){
+      if (result !== '0') {
+        console.log('result !== 0', result);
+        deferred.resolve(result);
+      }
+      else {
+        $rootScope.message = 'Username has already been taken.';
+        deferred.reject();
+        $location.url('/');
+      }
+    });
+
+    return deferred.promise;
+  };
+
+
+
+  result.gitLogin = function() {
+    var deferred = $q.defer();
+
+    var req = {
+     method: 'GET',
+     url: '/auth',
+     headers: {
+       'Access-Control-Allow-Origin': '*'
+     }
+    };
+
+    console.log('about to send get request to /auth in server');
+
+    $http(req).success(function(result) {
+      $deferred.resolve(result);
+    }).error(function(err) {
+      console.error(err);
+    });
+
+    //   .get('/auth', {headers: {'Access-Control-Allow-Origin': 'http://127.0.0.1:8000/' }}).success(function(result){
+    //   if (result !== '0')
+    //     deferred.resolve(result);
+    //   else {
+    //     $rootScope.message = 'gitLogin failed, don\'t know why.';
+    //     deferred.reject();
+    //     $location.url('/');
+    //   }
     // });
+
+    return deferred.promise;
+  };
 
   return result;
 

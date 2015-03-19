@@ -5,7 +5,7 @@ var auth = require('./auth.js');
 var util = require('./utility');
 var handler = require('./request-handler.js');
 var express = require('express');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 var app = express();
 
@@ -43,9 +43,9 @@ app.use(passport.session());
 passport.use(new GithubStrategy({
   clientID: githubApp.clientID,
   clientSecret: githubApp.secret,
-  callbackURL: 'http://127.0.0.1:4568/auth/callback'
+  callbackURL: 'http://127.0.0.1:8000/auth/github/callback'
 }, function(accessToken, refreshToken, profile, done){
-  done(null, {
+  return done(null, {
     accessToken: accessToken,
     profile: profile
   });
@@ -57,12 +57,14 @@ passport.serializeUser(function(user, done){
 
 passport.deserializeUser(function(user, done){
   done(null, user);
-}
+});
 
 // In auth page to authenticate, might need to move it. 
-app.get('/auth', passport.authenticate('github'));
+app.get('/auth', passport.authenticate('github'), function(req, res, next) {
+  res.redirect('/main');
+});
 app.get('/auth/error', auth.error);
-app.get('/auth/callback', 
+app.get('/auth/github/callback', 
   passport.authenticate('github', {failureRedirect: '/auth/error'}),
   auth.callback
 );
