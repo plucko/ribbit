@@ -1,5 +1,6 @@
-// After user login, send user to main page?
+// After user login, send user to main page?\
 var User = require('./db-user.js');
+var util = require('./utility.js');
 
 exports.loginUser = function(req, res){
   console.log(req.body);

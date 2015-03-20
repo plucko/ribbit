@@ -111,7 +111,7 @@ function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
     var req = {
      method: 'GET',
-     url: '/auth',
+     url: '/auth/github',
      headers: {
        'Access-Control-Allow-Origin': '*'
      }
