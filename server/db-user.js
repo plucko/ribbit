@@ -1,12 +1,18 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var bluebird = require('bluebird');
+var findOrCreate = require('mongoose-findorcreate');
+
 
 // Table Schema 
 var userSchema = mongoose.Schema({
   username: { type: String, required: true, index: { unique: true } },
-  password: {type: String, required: true}
+  password: {type: String, required: true},
+  githubId: {type: String, required: true},
+  githubName: {type:String, required: true}
 });
+
+userSchema.plugin(findOrCreate);
 
 var User = mongoose.model('User', userSchema);
 
