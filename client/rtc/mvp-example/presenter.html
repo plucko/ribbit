@@ -8,12 +8,12 @@
     <script src="../base-rtc.js"></script>
     <script src="../presenter-rtc.js"></script>
     <script type="text/javascript">
-      var addVideoElem = function (stream) {
+      var addVideoElem = function (url) {
         console.log('adding video!')
         var vid = document.createElement('video');
         vid.muted = true;
         vid.autoplay = true;
-        vid.src = window.URL.createObjectURL(stream); 
+        vid.src = url;
         document.getElementById('videos').appendChild(vid);
       }
 
@@ -36,10 +36,15 @@
             // if you don't go through angular and instead just set the src w/vanillaJS it does work, so things
             // are fine on the RTC side...
             var stream = $sce.trustAsResourceUrl(window.URL.createObjectURL(event.stream));
+
+            //Just testing w/vanillajs here, to make sure the remote stream actually works... angular can be fussy
+            addVideoElem(stream);
+
             var connection = {
               stream: stream,
               user: remoteUser
             };
+
             $scope.connections.push(connection)
 
             // must call $scope.$apply so angular knows to run a digest
@@ -51,6 +56,7 @@
           console.log('hey! in the confige')
 
           baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
+          // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
 
           baseRTCProvider.setPeerConnectionConfig({
             'iceServers': [
@@ -66,10 +72,6 @@
   <body ng-app="ribbitPresenterRTC" ng-controller="presenterCtrl">
     <h1>Audience Video</h1>
     Connections count: {{connections.length}}
-    <div ng-repeat="connection in connections">
-
-      <video autoplay muted ng-src="{{connection.stream}}" style="width:40%;"></video>
-      {{connection.user}}
-    </div>
+    <div id="videos"></div>
   </body>
 </html>
