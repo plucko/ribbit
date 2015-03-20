@@ -7,96 +7,307 @@
 // It does not manage media streams or setting event handlers for 
 // onaddstream, etc. Subclasses or clients can add these after
 // initializing the base class or extend createConnectionTo.
-var RibbitBaseRTC = function (user, options) {
-  this.me = user;
-  this.room = 'the conservatory'; //TODO: update with room once it start to matter
 
-  this.signalServer = new WebSocket(options.signalServer || 'ws://localhost:3434');
-  this.signalServer.onmessage = this._gotSignalMessage.bind(this);
-  
-  // Index peer connections by remote user.
-  this.peerConnections = {}; 
-};
+// Define the baseRTC constructor function which will be used to instantiate one baseRTC instance.
+var makeBaseRTC = function (options) {
+  var baseRTC = {};
 
-// Create a peer connection, and set it up to trickle ICE candidates
-// and have access to our local media stream (if we have one). It's up
-// to the caller to add on onaddstream handler if it cares about 
-// remote media streams, and to generate an offer/answer if that's what it
-// wants to do.
-RibbitBaseRTC.prototype.createConnectionTo = function (remoteUser) {
-  if (!remoteUser) return; //TODO: better error handling
-
-  var peerConnectionConfig = {
-    'iceServers': [
-      {'url': 'stun:stun.services.mozilla.com'}, 
-      {'url': 'stun:stun.l.google.com:19302'}
-    ]
+  // Track tasks that need to be done before we are 'ready', then
+  // run more tasks once we're done with setup.
+  var setupTasks = {};
+  var onSetupComplete;
+  baseRTC.ready = function (fn) {
+    // After all setup tasks are complete, the callback function provided as an argument will be fired.
+    // We are just storing the callback function here for later access via the maybeReady helper function.
+    onSetupComplete = fn;
+    // Check if all setup tasks are complete utilizing the maybeReady helper function defined below.
+    maybeReady(); 
   };
 
-  var pc = new RTCPeerConnection(peerConnectionConfig);
-  pc.onicecandidate = function (event) {
-    if (event.candidate !== null) {
-      this._send({ 'ice': event.candidate }, remoteUser, 'ice');
+  // This function checks to see if all the tasks required for setup are complete.
+  // These tasks include:
+  // 1. Opening a connection to the signal server utilizing web sockets
+  // 2. Gaining access to the users hardware components (after a user accepts chromes request to give ribbit acces to the microphone, for example).
+  var maybeReady = function () {
+    var done = true;
+    for (var task in setupTasks) {
+      // If any task status is false, do not fire onSetupComplete.
+      done = done && setupTasks[task]; 
     }
-  }.bind(this);
+    if (done) onSetupComplete(); 
+  };
 
-  if (this.localStream) {
-    pc.addStream(this.localStream);
-  }
+  // Connect to our signal server. We talk with other clients over 
+  // this server in order to establish peer connections to them.
+  baseRTC.signalServer = new WebSocket(options.signalServer);
+  //Wait for signal server connection to open before we're "ready"
+  setupTasks.signalServer = false;
+  baseRTC.signalServer.onopen = function () {
+    setupTasks.signalServer = true;
+    maybeReady();
+  };
 
-  this.peerConnections[remoteUser] = pc;
-  return pc;
-};
+  // If this client will be streaming media to a peer, getMedia should be
+  // called before initiating the handshake (offer/answer) process. (Adding
+  // a stream after connection is established requires the connection to be 
+  // renegotiated, a process we don't support now.)
+  //
+  // This method retrieves the media streams specified in the constraints
+  // parameter. It saves the streams so we can pass them to our peer connections 
+  // as we connect to them later.
+  baseRTC.getMedia = function (constraints, success, error) {
+    // Defines which hardware components the user must grant ribbit access to (video = camera, audio = microphone).
+    constraints = constraints || { video: true, audio: true };
+    error = error || function () {};
 
-// Help method to send a message to a specific recipient
-RibbitBaseRTC.prototype._send = function (message, recipient, messageType) {
-  this.signalServer.send(JSON.stringify({
-    recipient: recipient, //signal server needs to figure out correct recipient
-    sender: this.me,
-    room: this.room,
-    type: messageType,
-    contents: message
-  }));
-};
+    setupTasks.getMedia = false;
+    
+    // Define success function to handle stream after user agrees to grant access to the microphone.
+    var mediaSuccess = function (stream) {
+      this.localStream = stream; 
+      success && success(stream);
 
-// See _send for message.data structure
-RibbitBaseRTC.prototype._gotSignalMessage = function (message) {
-  var data = JSON.parse(message.data);
+      setupTasks.getMedia = true;
+      maybeReady();
 
-  if (!data.sender) return; //TODO: throw an error
-  if (data.recipient !== this.me) return; // not addressed to me... signal server shouldn't have sent to me in the first place
+    }.bind(this);
 
-  // Get peerConnection for sender, creating one if we don't already have one.
-  // We should only create a new pc for offers; answers and ice candidates will 
-  // (must!) already have a pc.
-  var pc = this.peerConnections[data.sender] || this.createConnectionTo(data.sender);
+    // Browser-based function to request access to users camera and/or whatever is defined by the constraints.
+    // This method is normalized across browsers in rtc-normalizer. Takes success and error callback functions.
+    navigator.getUserMedia(constraints, mediaSuccess, error);
+  };
 
-  // Respond to offer by setting new pc's remote description and sending an answer
-  // that contains our description
-  if (data.type === 'offer') {
-    var self = this;
-    // Set our remote description to that of remote peer
-    pc.setRemoteDescription(new RTCSessionDescription(data.contents), function () {
-      // Create answer, which will contain our local description
-      pc.createAnswer(function (answer) {
-        // Update our local description
-        pc.setLocalDescription(answer, function () {
-          // Send answer (our local description) to remote peer
-          self._send(answer, data.sender, 'answer');
+  // Save off config RTCPeerConnection needs to know how to connect
+  // to other clients
+  baseRTC.peerConnectionConfig = options.peerConnectionConfig;
+
+  // Maintain multiple peer connections, indexed by remote user
+  baseRTC.peerConnections = {};
+  
+
+
+  // Create a peer connection, and set it up to trickle ICE candidates
+  // and have access to our local media stream (if we have one). It's up
+  // to the caller to generate an offer/answer if that's what it
+  // wants to do.
+  baseRTC.createPeerConnection = function (remoteUser) {
+    if (!remoteUser) throw new Error('baseRTC.createPeerConnection: cannot create new peer connection without remote user');
+
+    // RTCPeerConnection is WebRTC's abstraction permitting audio and video connections between peers.
+    // This object manages local video/audio setting information and handles the network addresses peers will use to connect.
+    var pc = new RTCPeerConnection(this.peerConnectionConfig);
+
+    // Add peerConnection event handlers, e.g. onaddstream.
+    // Make the remote user and peerConnection object available to the handler
+    for (var e in this.handlers) {
+      pc[e] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        args.push(remoteUser, pc);
+        this.handlers[e].apply(undefined, args);
+      }.bind(this);
+    }
+
+    // This handler is called when network candidates become available.
+    // Sends ICE candidates to remote peer as they are added.
+    // ICE Candidates are transport addresses existing on each peers' machine, a combination of IP address and port for a particular transfer protocol.
+    // ICE basically analyzes all of the candidates (transport addresses) between two peers. Not all candidates will work together, so ICE is responsible for finding a suitable match.
+    pc.onicecandidate = function (event) {
+      if (event.candidate !== null) {
+        this._send({ 'ice': event.candidate }, remoteUser, 'ice');
+      }
+    }.bind(this);
+
+    // Add our media stream if we have one
+    if (this.localStream) {
+      pc.addStream(this.localStream);
+    }
+
+    // finally, add new peer connection to our cache
+    this.peerConnections[remoteUser] = pc;
+    return pc;
+  };
+
+  // Subclasses must implement -- some will connect to a room, others to a user.
+  // In either case, the room is the room they are connecting to. It takes an 
+  // object of the form: { name: 'living room', presenter: 'fred' }. The user
+  // is the user they are connecting as (not who they are connecting to).
+  baseRTC.connect = function (room, user) {
+    console.log('ERROR: called connect method on base class. Subclasses must implement .connect');
+  };
+
+  // Ask all clients in room to send an offer. They all generate offers that
+  // we can then give an answer to. Why do this? Because we don't know who else
+  // is in the room, so we don't know what peer connections to generate so we can 
+  // create offers. So instead, we ask for offers and now we know which peer 
+  // connections to create.
+  // TODO: fix the hacky way we're sending a message to the entire room. It shouldn't go to 'everyone'
+  baseRTC.connectToRoom = function (room) {
+    this._send({ 'requester': this.me }, 'everyone', 'request-for-offer'); 
+  };
+
+  // Create peer connection to a specific user and send them an offer. 
+  baseRTC.connectToUser = function (remoteUser) {
+    var pc = this.createPeerConnection(remoteUser);
+    // createOffer method generates an offer (SDP session description) that will be sent to peer.
+    pc.createOffer(function(description) {
+      // Before the offer is sent to the peer, the local description must be set to match the offer.
+      pc.setLocalDescription(description, function () {
+        // The offer is stringified utilizing the _send helper method below.
+        this._send(description, remoteUser, 'offer'); 
+      }.bind(this));
+    }.bind(this), function (err) { console.log('offer erorr: ', err); });
+  };
+
+  // Helper method to send a message to a specific recipient. Make sure all 
+  // messages are sent with a similar format. In particular, we need all messages
+  // to have a sender, recipient, toom, and type. Otherwise, our onmessage handler
+  // doesn't know what to do. See the handler for details on how these fields are used.
+  baseRTC._send = function (message, recipient, messageType) {
+    // Since SDPs are not natively JavaScript, the SDP is encapsulated in a SessionDescription object.
+    this.signalServer.send(JSON.stringify({
+      sender: this.me,
+      room: this.room,
+      recipient: recipient, 
+      type: messageType,
+      contents: message
+    }));
+  };
+
+  // Handles the process of peers accepting offers from other peers.
+  // Message structure is described in _send.
+  var onMessage = function (message) {
+    var data = JSON.parse(message.data);
+
+    // Screen out messages we don't care about. This is a hack to make up 
+    // for the signal server sending everything to everyone. Really, the
+    // signal server should send a message if and only if we need to see it.
+    if (!data.sender) return;
+    if (data.recipient !== this.me && 
+        (data.recipient !== 'everyone' || 
+          data.sender === this.me)) {
+          return;
+    }           
+    // Super useful for debugging. Most issues are somewhere in this function.
+    console.log(data);
+
+    // For offers and request-for-offers, we create a new peer connection, 
+    // even if we already have one. For ice candidates and answers, we use
+    // the peer connection we already have.
+    var pc;
+
+    // Respond to offer by setting new pc's remote description and sending an answer
+    // that contains our description
+    if (data.type === 'offer') {
+      pc = this.createPeerConnection(data.sender);
+      var self = this; //for _send below
+      // Provide local RTCPeerConnection with all the necessary details about the remote peer, provided in the offer message
+      pc.setRemoteDescription(new RTCSessionDescription(data.contents), function () {
+        // Generate the message 'answer' that will be the response to the offer made by the remote peer.
+        pc.createAnswer(function (answer) {
+          // Set local description and utilize the local description as the answer to the offer.
+          pc.setLocalDescription(answer, function () {
+            // Use signal server to stringify answer and send back to peer that made the offer.
+            self._send(answer, data.sender, 'answer');
+          });
         });
       });
-    });
 
-  // Respond to answers by just updating our remote description 
-  } else if (data.type === 'answer') {
-    pc.setRemoteDescription(new RTCSessionDescription(data.contents));
+    // Send an offer if asked  
+    } else if (data.type === 'request-for-offer') {
+      pc = this.createPeerConnection(data.sender);
+      this.connectToUser(data.contents.requester);
 
-  // Add ICE Candidates as they come in
-  } else if (data.type === 'ice') {
-    pc.addIceCandidate(new RTCIceCandidate(data.contents.ice));
-  }
+    // Respond to answers by just updating our remote description 
+    } else if (data.type === 'answer') {
+      pc = this.peerConnections[data.sender];
+      pc.setRemoteDescription(new RTCSessionDescription(data.contents));
+
+    // Add ICE Candidates as they come in -- the remote peer's oneicecandidate handler sends these
+    } else if (data.type === 'ice') {
+      pc = this.peerConnections[data.sender];
+      pc.addIceCandidate(new RTCIceCandidate(data.contents.ice));
+
+    // Oops! Where'd this message come from?
+    } else {
+      console.log('baseRTC:onMessage - unhandled message type: ' + data.type, data);
+    }
+  };
+  
+  // Use onMessage to handle messages coming from signal server
+  baseRTC.signalServer.onmessage = onMessage.bind(baseRTC);
+
+  // Peer connections emit events, like onaddstream and onremovestream.
+  // .on allows you to specify handlers for those events. The handler
+  // is added to any current peer connections. createPeerConnection
+  // adds hanlders specified here to any new peer connections it creates.
+  // Eventually, would like to support events not native to peer connections.
+  // Note: the remote user and peer connection object are the last two arguments
+  // passed to the handlers.
+  var handlers = baseRTC.handlers = {};
+  baseRTC.on = function (event, handler) {
+    // Add to existing connections
+    for (var u in this.peerConnections) {
+      this.peerConnections[u][event] = handler;
+    }
+    // Save so we can add to peer connections we create in the future
+    handlers[event] = handler; //only one handler per event for now
+  };
+
+  // Return completed baseRTC object from constructor function.
+  return baseRTC;
+
 };
 
+// ********************
+//    Angularization
+// ********************
+// We use a provider because there is app-level configuration
+// that should not be hardcoded. Specifically, you must set:
+// - The url of your signal server (which must use sockets)
+// - The ICE servers that peer connections will use in figuring out
+//   how to talk to each other.
+//
+// This is what a valid config looks like, though your specific config
+// will be different:
+// ```
+// angular.module('yourApp')
+//  .config(['baseRTCProvider', function(baseRTCProvider) {
+//     baseRTCProvider.setSignalServer('ws://localhost:3434'); 
+//     baseRTCProvider.setPeerConnectionConfig({
+//       'iceServers': [
+//         {'url': 'stun:stun.services.mozilla.com'}, 
+//         {'url': 'stun:stun.l.google.com:19302'}
+//       ]
+//     });
+//   }]);
+// ```
+
+angular.module('ribbitBaseRTC', ['ngSanitize'])
+  .provider('baseRTC', function () {
+    var signalServer;
+    this.setSignalServer = function(url) {
+      signalServer = url;
+    };
+
+    var peerConnectionConfig;
+    this.setPeerConnectionConfig = function (config) {
+      peerConnectionConfig = config;
+    };
+
+    this.$get = [function () {
+      if (!signalServer) {
+        throw Error('RTC Config Error: you must set the signal server in angular.config, e.g.: BaseRTCProvider.setSignalServer("url for your signal server>")');
+      }
+      if (!peerConnectionConfig) {
+        throw Error('RTC Config Error: you must set the peer connection configu in angular.config, e.g.: BaseRTCProvider.setPeerConnectionConfig({iceServers: [{url: <url>}, {url: <url>}]})');
+      }
+
+      return makeBaseRTC({ 
+        signalServer: signalServer, 
+        peerConnectionConfig: peerConnectionConfig 
+      });
+    }];  
+  });
 
 
 

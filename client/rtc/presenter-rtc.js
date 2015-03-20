@@ -1,20 +1,17 @@
-// PresenterRTC extends BaseRTC by exposing the onaddstream
-// event of each peer connection. This allows the presenter
-// to detect when new audience streams are added
-//
-// Will probably also expose other events here that the 
-// presenter will want to listen for -- e.g. onremovestream.
-var RibbitPresenterRTC = function (user, options) {
-  RibbitBaseRTC.call(this, user, options);
-  this.onaddstream = options.onaddstream; //used in createConnectionTo
-}
+// PresenterRTC has two unique features:
+// - Its connect method establishes a peer connection with each
+//   audience member in the room. It does this by asking everyone 
+//   in the room to send an offer for it can respond to
+// - It does not get a local media stream
 
-RibbitPresenterRTC.prototype = Object.create(RibbitBaseRTC.prototype);
-RibbitPresenterRTC.prototype.constructor = RibbitPresenterRTC;
+angular.module('ribbitPresenterRTC', ['ribbitBaseRTC'])
+  .factory('presenterRTC', function (baseRTC) {
+    
+    baseRTC.connect = function(room, name) {
+      this.room = room;
+      this.me = name;
+      this.connectToRoom(this.room); 
+    }
 
-
-RibbitPresenterRTC.prototype.createConnectionTo = function (user) {
-  var pc = RibbitBaseRTC.prototype.createConnectionTo.call(this, user);
-  pc.onaddstream = this.onaddstream; //make sure each peer connection has our onstream handler
-  return pc;
-}
+    return baseRTC;
+  })
