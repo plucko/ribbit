@@ -103,8 +103,28 @@ exports.checkRoom = function(req, res, rooms){
   }
   rooms[roomName] = {
     presenter: lecturerName,
-    audience : {}
+    audience : []
   };
   res.send({rooms: rooms});
   return rooms[roomName] ;
+};
+
+// If the room is available for access, return 1
+// If the room is already in the list, return 0
+exports.accessRoom = function(req, res, rooms, inputRoom){
+  // Get user 
+  var studentName = req.body.name;
+
+  // if room exists
+  for (var key in rooms){
+    if (key === inputRoom){
+      // Add student to the room
+      rooms[inputRoom][audience].push(studentName);
+      res.send('1');
+      return rooms;
+    }
+  }
+  
+  res.send('0');
+  return rooms;
 };

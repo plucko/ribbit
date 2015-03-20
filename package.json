@@ -61,8 +61,6 @@
     "passport": "^0.2.1",
     "passport-github": "^0.1.5",
     "ws": "^0.7.1"
-  }
-    "passport-github": "^0.1.5",
   },
   "devDependencies": {},
   "scripts": {
