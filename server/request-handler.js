@@ -75,7 +75,6 @@ exports.checkPresenter = function(req, res, rooms) {
     if (room === roomName) {
       console.log('inside the checkPresenter handler function. Logging room: ', rooms[room]);
       res.send({roomname: room, presenter: rooms[room].presenter});
-      return;
     }
   }
   res.send('0');
@@ -84,6 +83,11 @@ exports.checkPresenter = function(req, res, rooms) {
 // If the room is available for creation, return 1
 // If the room is already in the list, return 0
 exports.checkRoom = function(req, res, rooms){
+  if (req.session.passport.user === undefined) {
+    res.send(401);
+    return;
+  }
+  
   var roomName = req.body.roomname;
   var lecturerName = req.session.passport.user.username;
 
@@ -91,8 +95,8 @@ exports.checkRoom = function(req, res, rooms){
   console.log('inside the checkroom handler function. Logging roomName: ', roomName);
   console.log('inside the checkroom handler function. Logging lecturerName: ', lecturerName);
 
-  for (var key in rooms){
-    if (key === roomName){
+  for (var room in rooms){
+    if (room === roomName){
       res.send('0');
       return;
     }
