@@ -117,16 +117,17 @@ app.get('/loggedin', function(req, res) {
 });
 
 // Lecturer post room logic
-app.get('/rooms', util.checkUser, function(req, res, rooms){
-  console.log('get request to /rooms, logging req.user', req.user);
-  console.log('get request to /rooms, logging req.session', req.session);
-  handler.checkPresenter(req, res, rooms);
+
+app.post('/rooms', util.checkUser, function(req, res, next){
+  console.log('post request to /rooms, logging req.user: ', req.user);
+  console.log('post request to /rooms, logging req.session: ', req.session);
+  handler.checkRoom(req, res, rooms);
 });
 
-app.post('/rooms', util.checkUser, function(req, res, rooms){
-  console.log('post request to /rooms, logging req.user', req.user);
-  console.log('post request to /rooms, logging req.session', req.session);
-  handler.checkRoom(req, res, rooms);
+app.post('/rooms/asAudience', util.checkUser, function(req, res, next){
+  console.log('post request to /rooms/asAudience, logging req.user: ', req.user);
+  console.log('post request to /rooms/asAudience, logging req.session: ', req.session);
+  handler.checkPresenter(req, res, rooms);
 });
 
 var server = app.listen(8000, function(){

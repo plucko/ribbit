@@ -46,10 +46,10 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   // access to the presenter's view and controller will be turned away if they
   // are not the presenter.
 
-  result.returnPresenter = function() {
+  result.returnPresenter = function(roomname) {
     var deferred = $q.defer();
 
-    $http.get('/rooms').success(function(result){
+    $http.post('/rooms/asAudience', {roomname: roomname}).success(function(result){
       if (result !== '0') {
         $rootScope.message = 'Found the room! Connecting you now.';
         console.log('Found room and returning room info (result object)', result);

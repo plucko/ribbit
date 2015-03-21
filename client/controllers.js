@@ -60,7 +60,7 @@ micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Aut
 }]);
 
 micControllers.controller('MainControl', ['$scope', '$location', 'Room', function($scope, $location, Room) {
-  $scope.data = [];
+  $scope.room;
 
   $scope.createRoom = function(room) {
     var successCb = function(result) {
@@ -96,7 +96,9 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
 
     var successCb = function(result) {
       console.log(result);
+      $scope.room = result;
       $location.url('/audience');
+      console.log('inside the joinRoom function, logging out $scope.room: ', $scope.room)
     };
 
     var errorCb = function(err) {
