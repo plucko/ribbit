@@ -98,7 +98,7 @@ exports.checkRoom = function(req, res, rooms){
   for (var room in rooms){
     if (room === roomName){
       res.send('0');
-      return;
+      return rooms;
     }
   }
   rooms[roomName] = {
@@ -109,7 +109,7 @@ exports.checkRoom = function(req, res, rooms){
   return rooms[roomName] ;
 };
 
-// If the room is available for access, return 1
+// If the room is available for access, return the room object
 // If the room is already in the list, return 0
 exports.accessRoom = function(req, res, rooms, inputRoom){
   // Get user 
@@ -120,7 +120,7 @@ exports.accessRoom = function(req, res, rooms, inputRoom){
     if (key === inputRoom){
       // Add student to the room
       rooms[inputRoom][audience].push(studentName);
-      res.send('1');
+      res.send(rooms[inputRoom]); //send back inputRoom 
       return rooms;
     }
   }

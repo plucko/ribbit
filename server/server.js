@@ -14,10 +14,17 @@ var url = require("url");
 
 var app = express();
 
-// Define existing rooms
+// Define existing rooms object
+// Rooms should be like rooms = {room1: {lecturer: teacher1, students: [stu1, stu2]}, room2: {lecturer: teacher2, students: [stu3, stu4]}}
 var rooms = {};
 
 app.use(express.static(__dirname + '/../client'));
+
+app.use(cookieParser());
+app.use( bodyParser.json() );
+app.use(bodyParser.urlencoded({
+  extended: true
+})); 
 
 app.get('/', util.checkUser, function(req, res) {
     res.send('1');
