@@ -1,0 +1,17 @@
+<form ng-submit="normalLogin(username, password)">
+  <input type="text" ng-model="username" placeholder="enter username">
+  <input type="text" ng-model="password" placeholder="enter password">
+  <button>sign in</button>
+</form>
+
+
+<!-- Got the idea for an a tag from http://stackoverflow.com/questions/26029627/angular-node-express-passport-cross-domain-problems-enable-cors-passport-faceb -->
+<a href='/auth/github'>Log in with Git</a>
+
+<form ng-submit="signup(username, password)">
+  <input type="text" ng-model="username" placeholder="enter username">
+  <input type="text" ng-model="password" placeholder="enter password">
+  <button>sign up</button>
+</form>
+
+<p> {{ message }} </p>

@@ -1,10 +1,61 @@
 var micControllers = angular.module('micControllers', []);
 
-micControllers.controller('IndexControl', ['$scope', function($scope) {
+micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Auth) {
 
-  $scope.logger = function() {
-    console.log('hi');
+  $scope.normalLogin = function(username, password) {
+
+    var successCb = function(result) {
+      console.log('made it to successCB of normalLogin controller');
+      $location.url('/main');
+    };
+
+    var errorCb = function(err) {
+      console.error(err);
+      $location.url('/');
+    };
+
+    var notifyCb = function(result) {
+      console.log(result);
+    };
+
+    console.log(username, password);
+
+    var authPromise = Auth.normalLogin(username, password);
+
+    console.log(authPromise);
+
+    authPromise.then(function() {
+      console.log('promise has resolved')
+    }).finally(function(){
+      console.log('do something')
+    })
+
+    // authPromise
+    //   .catch(function(err) {
+    //     console.error(err);
+    //   })
+    //   .then(function(result) {
+    //     console.log(result);
+    //   });
+      // successCb, errorCb, notifyCb);
   };
+
+  $scope.signup = function(username, password) {
+    console.log('signing up');
+    Auth.signup(username, password)
+      .catch(function(err) {
+        console.error(err);
+      })
+      .then(function(result) {
+        console.log(result);
+      });
+  };
+
+  $scope.gitLogin = function() {
+    Auth.gitLogin();
+    console.log('gitlogin');
+  };
+
 
 }]);
 
@@ -13,17 +64,17 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
 
   $scope.createRoom = function(room) {
     var successCb = function(result) {
-      console.log(result);
+      console.log('logging the success result from calling the createRoom function', result);
       $location.url('/presenter');
     };
 
     var errorCb = function(err) {
-      console.error(err);
+      console.error('logging the error from calling the createRoom function', err);
       $location.url('/main');
     };
 
     var notifyCb = function(result) {
-      console.log(result);
+      console.log('logging the notification result from calling the createRoom function', result);
     };
 
     room = room || 'testRoom';
