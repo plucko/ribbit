@@ -1,112 +1,169 @@
 module.exports = function(grunt) {
-
-  grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-
-    mochaTest: {
-      test: {
-        options: {
-          reporter: 'spec'
-        },
-        src: ['test/**/*.js']
-      }
-    },
-
-    nodemon: {
-      dev: {
-        script: 'server.js'
-      }
-    },
-
-    uglify: {
-      build: {
-        src:[],
-        dest: ''
-      },
-
-    },
-
-    jshint: {
-      files: [
-        ''
-      ],
-      options: {
-        force: 'true',
-        jshintrc: '.jshintrc',
-        ignores: []
-      }
-    },
-
-    cssmin: {
-      build: {
-        src:'',
-        dest: ''
-      }
-    },
-
-    watch: {
-      scripts: {
-        files: [
-          '',
-          '',
-        ],
-        tasks: [
-          'uglify'
-        ]
-      },
-      css: {
-        files: '',
-        tasks: ['cssmin']
-      }
-    },
-
-    shell: {
-      prodServer: {
-        command: 'git push azure master'
-      }
-    },
-  });
-
+  // load up all of the necessary grunt plugins
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-shell');
-  grunt.loadNpmTasks('grunt-nodemon');
+  grunt.loadNpmTasks('grunt-express-server');
+  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-casperjs');
+  grunt.loadNpmTasks('grunt-mocha');
 
-  grunt.registerTask('server-dev', function (target) {
-    // Running nodejs in a different process and displaying output on the main console
-    var nodemon = grunt.util.spawn({
-         cmd: 'grunt',
-         grunt: true,
-         args: 'nodemon'
-    });
-    nodemon.stdout.pipe(process.stdout);
-    nodemon.stderr.pipe(process.stderr);
 
-    grunt.task.run([ 'watch' ]);
-  });
+  // in what order should the files be concatenated
+  var clientIncludeOrder = require('./include.conf.js');
 
-  ////////////////////////////////////////////////////
-  // Main grunt tasks
-  ////////////////////////////////////////////////////
+  // grunt setup
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
 
-  grunt.registerTask('default', ['uglify', 'cssmin', 'jshint']);
+    // create a task called clean, which
+    // deletes all files in the listed folders
+    clean: {
+      dist: 'dist/*',
+      results: 'results/*'
+    },
 
-  grunt.registerTask('test', ['mochaTest']);
+    // what files should be linted
+    jshint: {
+      gruntfile: 'Gruntfile.js',
+      client: clientIncludeOrder,
+      server: 'server/**/*.js',
+      options: {
+        globals: {
+          eqeqeq: true
+        }
+      }
+    },
 
-  grunt.registerTask('build', ['default']);
+    // uglify the files
+    uglify: {
+      ribbit: {
+        files: {
+          'dist/client/scripts/ribbit.js': clientIncludeOrder
+        }
+      }
+    },
 
-  grunt.registerTask('upload', function(n) {
-    if(grunt.option('prod')) {
-      grunt.task.run([ 'shell' ]);
-    } else {
-      grunt.task.run([ 'server-dev' ]);
+    // copy necessary files to our dist folder
+    copy: {
+      // create a task for client files
+      client: {
+        // Copy everything but the to-be-concatenated ribbit JS files
+        src: [ 'client/**', '!client/scripts/ribbit/**' ],
+        dest: 'dist/'
+      },
+      // create a task for server files
+      server: {
+        src: [ 'server/**' ],
+        dest: 'dist/'
+      }
+    },
+
+    // concat all the js files
+    concat: {
+      ribbit: {
+        files: {
+          // concat all the ribbit js files into one file
+          'dist/client/scripts/ribbit.js': clientIncludeOrder
+        }
+      }
+    },
+
+    // configure the server
+    express: {
+      dev: {
+        options: {
+          script: 'dist/server/server.js'
+        }
+      }
+    },
+
+    // configure karma
+    karma: {
+      options: {
+        configFile: 'karma.conf.js',
+        reporters: ['progress', 'coverage']
+      },
+      // Watch configuration
+      watch: {
+        background: true,
+        reporters: ['progress']
+      },
+      // Single-run configuration for development
+      single: {
+        singleRun: true,
+      },
+      // Single-run configuration for CI
+      ci: {
+        singleRun: true,
+        coverageReporter: {
+          type: 'lcov',
+          dir: 'results/coverage/'
+        }
+      }
+    },
+
+    // configure casperjs
+    casperjs: {
+      options: {},
+      e2e: {
+        files: {
+          'results/casper': 'test/e2e/**/*.js'
+        }
+      }
+    },
+
+    // create a watch task for tracking
+    // any changes to the following files
+    watch: {
+      gruntfile: {
+        files: 'Gruntfile.js',
+        tasks: 'jshint:gruntfile'
+      },
+      client: {
+        files: [ 'client/**' ],
+        tasks: [ 'build', 'karma:watch:run', 'casperjs' ]
+      },
+      server: {
+        files: [ 'server/**' ],
+        tasks: [ 'build', 'express:dev', 'casperjs' ],
+        options: {
+          spawn: false // Restart server
+        }
+      },
+      unitTests: {
+        files: [ 'test/unit/**/*.js' ],
+        tasks: [ 'karma:watch:run' ]
+      },
+      integrationTests: {
+        files: [ 'test/integration/**/*.js' ],
+        tasks: [ 'karma:watch:run' ]
+      },
+      e2eTests: {
+        files: [ 'test/e2e/**/*.js' ],
+        tasks: [ 'casperjs' ]
+      }
     }
   });
 
-  grunt.registerTask('deploy', ['default', 'test', 'upload']);
+  // Perform a build
+  grunt.registerTask('build', [ 'jshint', 'clean', 'copy', 'concat', 'uglify']);
 
+  // Run e2e tests once
+  grunt.registerTask('teste2e', [ 'express:dev', 'casperjs' ]);
 
+  // Run client tests once
+  grunt.registerTask('testClient', [ 'karma:single' ]);
+
+  // Run all tests once
+  grunt.registerTask('test', [ 'testClient', 'teste2e']);
+
+  // Run all tests once
+  grunt.registerTask('ci', [ 'karma:ci', 'express:dev', 'casperjs' ]);
+
+  // Start watching and run tests when files change
+  grunt.registerTask('default', [ 'build', 'express:dev', 'karma:watch:start', 'watch' ]);
 };
