@@ -49,13 +49,16 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   result.returnPresenter = function() {
     var deferred = $q.defer();
 
-    $http.get('/isPresenter').success(function(result){
-      if (result !== '0')
+    $http.get('/rooms').success(function(result){
+      if (result !== '0') {
+        $rootScope.message = 'Found the room! Connecting you now.';
+        console.log('Found room and returning room info (result object)', result);
         deferred.resolve(result);
-      else {
-        $rootScope.message = 'You are not the presenter for this room.';
-        deferred.reject();
-        $location.url('/main');
+      } else {
+        $rootScope.message = 'Room does not exist!';
+        console.log('Did not find room, returning room info (result object)', result);
+        deferred.reject(result);
+        $location.url('#/main');
       }
     });
 

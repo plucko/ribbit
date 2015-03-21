@@ -72,6 +72,7 @@ exports.checkPresenter = function(req, res, rooms) {
 
   for (var key in rooms) {
     if (key === roomName) {
+      console.log('inside the checkPresenter handler function. Logging room', roomName[key]);
       res.send({room: roomName[key]});
       return;
     }
