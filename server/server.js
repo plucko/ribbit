@@ -56,8 +56,8 @@ passport.use(new GithubStrategy({
 }, function(accessToken, refreshToken, profile, done){
   console.log('accessToken', accessToken);
   console.log('refreshToken', refreshToken);
-  // console.log('profile', profile);
-  User.findOrCreate({githubId: profile.id}, function(err, user) {
+  // console.log('profile', profile.displayName);
+  User.findOrCreate({githubId: profile.id, username: profile.displayName}, function(err, user) {
     return done(err, user);
   });
   
@@ -74,8 +74,8 @@ passport.serializeUser(function(user, done){
 });
 
 passport.deserializeUser(function(id, done){
-  console.log('id to be used to deserialized', id);
-  User.findById(id, function(err, user) {
+  console.log('id to be used to deserialized', 'this is the id', id);
+  User.find({githubId: id._id}, function(err, user) {
     if (err) { return err;}
     done(err, user);
   });
@@ -95,7 +95,7 @@ app.get('/auth/github', function(req, res, next) {
   console.log('in the /auth path, trying to authenticate the user with passport');
   next();
 },
-    passport.authenticate('github', { failureRedirect: '/'}), function(req, res, next) {
+    passport.authenticate('github', { failureRedirect: '/auth/error'}), function(req, res, next) {
   console.log('Authenticated through the github strategy, executing the next piece of middleware and redirecting to /main');
   console.log(req.user);
   res.redirect('/#/main');

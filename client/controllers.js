@@ -64,17 +64,17 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
 
   $scope.createRoom = function(room) {
     var successCb = function(result) {
-      console.log(result);
+      console.log('logging the success result from calling the createRoom function', result);
       $location.url('/presenter');
     };
 
     var errorCb = function(err) {
-      console.error(err);
+      console.error('logging the error from calling the createRoom function', err);
       $location.url('/main');
     };
 
     var notifyCb = function(result) {
-      console.log(result);
+      console.log('logging the notification result from calling the createRoom function', result);
     };
 
     room = room || 'testRoom';

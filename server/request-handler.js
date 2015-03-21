@@ -82,5 +82,5 @@ exports.checkRoom = function(req, res, rooms){
     audience : {}
   };
   res.send('1');
-  return room;
+  return rooms[roomName];
 };
