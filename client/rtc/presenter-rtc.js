@@ -11,7 +11,7 @@ angular.module('ribbitPresenterRTC', ['ribbitBaseRTC'])
       this.room = room;
       this.me = name;
       this.connectToRoom(this.room); 
-    }
+    };
 
     return baseRTC;
-  })
+  });
