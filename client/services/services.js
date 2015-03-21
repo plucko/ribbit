@@ -15,6 +15,20 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     // Initialize a new promise
     var deferred = $q.defer();
 
+    var successCb = function(result) {
+      console.log('logging the success result from calling the createRoom function', result);
+      $location.url('/presenter');
+    };
+
+    var errorCb = function(err) {
+      console.error('logging the error from calling the createRoom function', err);
+      $location.url('/main');
+    };
+
+    var notifyCb = function(result) {
+      console.log('logging the notification result from calling the createRoom function', result);
+    };
+
     // Make an AJAX call to check if the user is logged in
     $http.post('/rooms', {roomname: room}).success(function(result){
       // Authenticated
@@ -26,7 +40,7 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
         /*$timeout(deferred.resolve, 0);*/
         $rootScope.message = 'Room successfully created!';
-        console.log('successful post request to /rooms: About to resolve the promise.')
+        console.log('successful post request to /rooms: About to resolve the promise.');
         deferred.resolve(result);
       }
       // Not Authenticated
@@ -38,7 +52,10 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
       }
     });
 
-    return deferred.promise;
+    return deferred.promise.catch(function(err) {
+        console.error(err);
+      })
+      .then(successCb, errorCb, notifyCb);
   };
 
   // Function to check if the user is the presenter for the room. There should
@@ -46,10 +63,27 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
   // access to the presenter's view and controller will be turned away if they
   // are not the presenter.
 
-  result.returnPresenter = function() {
+  result.returnPresenter = function($scope, room) {
     var deferred = $q.defer();
 
-    $http.get('/rooms').success(function(result){
+    var successCb = function(result) {
+      console.log('logging returnPresenter function\'s success result:', result);
+      $scope.room = result;
+      $location.url('/audience');
+      console.log('inside the joinRoom function, logging out $scope.room: ', $scope.room);
+      return result;
+    };
+
+    var errorCb = function(err) {
+      console.error(err);
+      $location.url('/main');
+    };
+
+    var notifyCb = function(result) {
+      console.log(result);
+    };
+
+    $http.post('/rooms/asAudience', {roomname: room}).success(function(result){
       if (result !== '0') {
         $rootScope.message = 'Found the room! Connecting you now.';
         console.log('Found room and returning room info (result object)', result);
@@ -59,10 +93,12 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
         console.log('Did not find room, returning room info (result object)', result);
         deferred.reject(result);
         $location.url('#/main');
-      }
+      } 
     });
 
-    return deferred.promise;
+    return deferred.promise.catch(function(err) {
+        console.error(err);
+      }).then(successCb, errorCb, notifyCb);
   };
 
   return result;
@@ -111,25 +147,6 @@ function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
 
 
-  result.gitLogin = function() {
-    var deferred = $q.defer();
-
-    var req = {
-     method: 'GET',
-     url: '/auth/github',
-     headers: {
-       'Access-Control-Allow-Origin': '*'
-     }
-    };
-
-    console.log('about to send get request to /auth in server');
-
-    $http(req).success(function(result) {
-      $deferred.resolve(result);
-    }).error(function(err) {
-      console.error(err);
-    });
-
     //   .get('/auth', {headers: {'Access-Control-Allow-Origin': 'http://127.0.0.1:8000/' }}).success(function(result){
     //   if (result !== '0')
     //     deferred.resolve(result);
@@ -140,8 +157,6 @@ function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
     //   }
     // });
 
-    return deferred.promise;
-  };
 
   return result;
 

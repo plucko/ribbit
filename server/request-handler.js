@@ -69,12 +69,12 @@ exports.logoutUser = function(req, res){
 // information in the case that it exists. Otherwise sends '0'.
 exports.checkPresenter = function(req, res, rooms) {
   var roomName = req.body.roomname;
+  console.log('inside the request handler checkPresenter function, logging out req.body', req.body);
 
-  for (var key in rooms) {
-    if (key === roomName) {
-      console.log('inside the checkPresenter handler function. Logging room', roomName[key]);
-      res.send({room: roomName[key]});
-      return;
+  for (var room in rooms) {
+    if (room === roomName) {
+      console.log('inside the checkPresenter handler function. Logging room: ', rooms[room]);
+      res.send({roomname: room, presenter: rooms[room].presenter});
     }
   }
   res.send('0');
@@ -83,15 +83,20 @@ exports.checkPresenter = function(req, res, rooms) {
 // If the room is available for creation, return 1
 // If the room is already in the list, return 0
 exports.checkRoom = function(req, res, rooms){
+  if (req.session.passport.user === undefined) {
+    res.send(401);
+    return;
+  }
+  
   var roomName = req.body.roomname;
   var lecturerName = req.session.passport.user.username;
 
-  console.log('inside the checkroom handler function. Logging req.body', req.body);
-  console.log('inside the checkroom handler function. Logging roomName', roomName);
-  console.log('inside the checkroom handler function. Logging lecturerName', lecturerName);
+  console.log('inside the checkroom handler function. Logging req.body: ', req.body);
+  console.log('inside the checkroom handler function. Logging roomName: ', roomName);
+  console.log('inside the checkroom handler function. Logging lecturerName: ', lecturerName);
 
-  for (var key in rooms){
-    if (key === roomName){
+  for (var room in rooms){
+    if (room === roomName){
       res.send('0');
       return;
     }

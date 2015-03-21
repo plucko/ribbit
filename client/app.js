@@ -64,10 +64,10 @@ micApp.config(['$routeProvider', '$httpProvider',
       })
       .when('/main', {
         templateUrl: 'main/main.html',
-        controller: 'MainControl'
-        // resolve: {
-        //   loggedin: checkLoggedin
-        // }
+        controller: 'MainControl',
+        resolve: {
+          loggedin: checkLoggedin
+        }
       })
       .otherwise({
         redirectTo: '/'
