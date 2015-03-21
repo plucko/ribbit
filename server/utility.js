@@ -2,9 +2,11 @@
 exports.checkUser = function(req, res, next){
   console.log('in the checkUser utility function, logging req.user object', req.user);
   console.log('in the checkUser utility function, logging req.session object', req.session);
-  if (req.user) {
+  if (req.user || req.session.passport !== {}) {
+    console.log('in the checkUser utility function, about to execute next()');
     next();
   } else {
+    console.log('in the checkUser utility function, about to have the response object send "0"');
     res.send('0');
   }
 };

@@ -117,8 +117,15 @@ app.get('/loggedin', function(req, res) {
 });
 
 // Lecturer post room logic
+app.get('/rooms', util.checkUser, function(req, res, rooms){
+  console.log('get request to /rooms, logging req.user', req.user);
+  console.log('get request to /rooms, logging req.session', req.session);
+  handler.checkPresenter(req, res, rooms);
+});
+
 app.post('/rooms', util.checkUser, function(req, res, rooms){
-  console.log('post request to /rooms, loggin req.user', req.user);
+  console.log('post request to /rooms, logging req.user', req.user);
+  console.log('post request to /rooms, logging req.session', req.session);
   handler.checkRoom(req, res, rooms);
 });
 

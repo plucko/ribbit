@@ -16,20 +16,22 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     var deferred = $q.defer();
 
     // Make an AJAX call to check if the user is logged in
-    $http.post('/rooms', {data: {room: room}}).success(function(result){
+    $http.post('/rooms', {roomname: room}).success(function(result){
       // Authenticated
       
       // Interacts with server code because server will be written something like
       // app.get('/loggedin', function(req, res) {
       // res.send(req.isAuthenticated() ? req.user : '0'); }); 
-      if (result !== '0')
+      if (result !== '0') {
 
         /*$timeout(deferred.resolve, 0);*/
+        $rootScope.message = 'Room successfully created!';
+        console.log('successful post request to /rooms: About to resolve the promise.')
         deferred.resolve(result);
-
+      }
       // Not Authenticated
       else {
-        $rootScope.message = 'Room does not exist or you entered the password incorrectly. Try again.';
+        $rootScope.message = 'Room already exists.';
         //$timeout(function(){deferred.reject();}, 0);
         deferred.reject();
         $location.url('/main');

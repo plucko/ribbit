@@ -57,10 +57,10 @@ micApp.config(['$routeProvider', '$httpProvider',
       })
       .when('/presenter', {
         templateUrl: 'presenter/presenter.html',
-        controller: 'PresenterControl'
-        // resolve: {
-        //   loggedin: checkLoggedin
-        // }
+        controller: 'PresenterControl',
+        resolve: {
+          loggedin: checkLoggedin
+        }
       })
       .when('/main', {
         templateUrl: 'main/main.html',
