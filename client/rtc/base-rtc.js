@@ -142,6 +142,10 @@ var makeBaseRTC = function (options) {
     console.log('ERROR: called connect method on base class. Subclasses must implement .connect');
   };
 
+  baseRTC.disconnect = function (room, user) {
+    console.log('ERROR: called connect method on base class. Subclasses must implement .connect');
+  };
+
   // Ask all clients in room to send an offer. They all generate offers that
   // we can then give an answer to. Why do this? Because we don't know who else
   // is in the room, so we don't know what peer connections to generate so we can 
@@ -163,6 +167,16 @@ var makeBaseRTC = function (options) {
         this._send(description, remoteUser, 'offer'); 
       }.bind(this));
     }.bind(this), function (err) { console.log('offer erorr: ', err); });
+  };
+
+  // Close peer connection to a specific user.
+  // This method gets called by an audience member to turn off their mic and stop audio from streaming 
+  baseRTC.disconnectFromUser = function(remoteUser){
+    // Lookup user in peerConnections object;
+    var pc = this.peerConnections[remoteUser];
+    // Utilize built-in RTCPeerConnection close method https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/close
+    pc.removeStream(this.localStream);
+    // pc.close();
   };
 
   // Helper method to send a message to a specific recipient. Make sure all 

@@ -9,13 +9,13 @@
     <script src="../presenter-rtc.js"></script>
     <script type="text/javascript">
       var addVideoElem = function (url) {
-        console.log('adding video!')
+        console.log('adding video!');
         var vid = document.createElement('video');
         vid.muted = true;
         vid.autoplay = true;
         vid.src = url;
         document.getElementById('videos').appendChild(vid);
-      }
+      };
 
       angular.module('ribbitPresenterRTC')
         .controller('presenterCtrl', function($scope, $sce, presenterRTC) {
@@ -45,7 +45,7 @@
               user: remoteUser
             };
 
-            $scope.connections.push(connection)
+            $scope.connections.push(connection);
 
             // must call $scope.$apply so angular knows to run a digest
             $scope.$apply();
@@ -53,7 +53,7 @@
 
         })
         .config(['baseRTCProvider', function(baseRTCProvider) {
-          console.log('hey! in the confige')
+          console.log('hey! in the config');
 
           baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
           // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
