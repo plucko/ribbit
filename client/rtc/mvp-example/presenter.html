@@ -26,6 +26,29 @@
             // the first arg here is teh room object, the second is who we're connecting as
             presenterRTC.connect({ name: 'aviary', presenter: 'fred'}, 'fred'); 
           });
+          
+          presenterRTC.on('onremovestream', function(event, remoteUser, pc){
+            console.log('we are in here, finally -------');
+            console.log(event);
+            console.log(remoteUser);
+            console.log(pc);
+            // for(var i = $scope.connections.length-1; i >= 0; i--) {
+            //   if( $scope.connections[i].user === remoteUser) $scope.connections.splice(i,1);
+            //   return;
+            // }
+          });
+
+          presenterRTC.on('oniceconnectionstatechange', function(event, remoteUser, pc){
+            console.log('!!!!!!!!!!!!ice connection changed');
+            console.log(event);
+            console.log(remoteUser);
+            console.log(pc);
+            // for(var i = $scope.connections.length-1; i >= 0; i--) {
+            //   console.log($scope.connections[i]);
+            //   if( $scope.connections[i].user === remoteUser) $scope.connections.splice(i,1);
+            //   return;
+            // }
+          });
 
           // register event handlers for peer connection events. MDN has a description of these events.
           // the remote user and peerconnection object are the last two arguments for any handler
