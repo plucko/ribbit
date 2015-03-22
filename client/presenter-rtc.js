@@ -4,7 +4,7 @@
 //   in the room to send an offer for it can respond to
 // - It does not get a local media stream
 
-angular.module('ribbitPresenterRTC', ['ribbitBaseRTC'])
+angular.module('micControllers', ['ribbitBaseRTC'])
   .factory('presenterRTC', function (baseRTC) {
     
     baseRTC.connect = function(room, name) {

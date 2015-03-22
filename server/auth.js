@@ -13,5 +13,5 @@ exports.auth = function(req, res, next){
     res.send(401);
   } else {
     next();
-  };
+  }
 };

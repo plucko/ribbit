@@ -2,7 +2,7 @@
 //  - Acquires the user's local media stream right away, upon instantiating
 //  - Connects specifically to the room's presenter.
 // NOTE: The connect method must be passed a room that has a presenter property.
-angular.module('ribbitAudienceRTC', ['ribbitBaseRTC', 'ngSanitize'])
+angular.module('micControllers', ['ribbitBaseRTC', 'ngSanitize'])
   .factory('audienceRTC', function (baseRTC) {
 
     // Get local media right away

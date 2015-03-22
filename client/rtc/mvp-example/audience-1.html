@@ -9,7 +9,12 @@
     <script type="text/javascript">
       angular.module('ribbitAudienceRTC')
         .controller('audienceCtrl', function ($scope, $sce, audienceRTC) {
-          // only connect after ready (signal server is up, we have a media stream)
+          // Initialize micStatus with default settings of power = off (false) and the option to "Turn on your mic!"
+          // The power boolean is utilized to determine whether the views mic button will open a new peer connection with the presenter or close an existing connection.
+          // The command will toggle based on the power state so the user is aware what will happen.
+          $scope.micStatus = {power: false, command: "Turn on your mic!"};
+
+          // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
           audienceRTC.ready(function () {
 
             // access local media stream in audienceRTC.localStream
@@ -19,16 +24,39 @@
             //   you need to inject $sce as a dependency (part of angular-sanitize, included in baseRTC)
             $scope.localStream = $sce.trustAsResourceUrl(window.URL.createObjectURL(audienceRTC.localStream));
 
-            // connect now that our signal server is ready
-            audienceRTC.connect({ roomname: 'aviary', presenter: 'fred' }, 'ryan');
+            // utilize the audienceRTC factory (injected into the controller) to establish a connection with the presenter.
+            // audienceRTC.connect will trigger baseRTC's connectToUser method.
+            var openPeerConnection = function(roomName, audienceMemberName){
+              audienceRTC.connect({ roomname: roomName, presenter: 'fred' }, audienceMemberName);
+              $scope.micStatus.command = 'Turn off your mic!';
+              $scope.micStatus.power = true;
+            };
+
+            // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
+            var closePeerConnection = function(roomName, audienceMemberName){
+              audienceRTC.disconnect({ roomname: roomName, presenter: 'fred'}, audienceMemberName);
+              $scope.micStatus.command = 'Turn on your mic!';
+              $scope.micStatus.power = false;
+            };
+
+            // based on the mics power attribute, determines whether to open or close a connection.
+            $scope.connectionManager = function(roomName, audienceMemberName){
+              if(roomName) { $scope.roomName = roomName; }
+              if(audienceMemberName) { $scope.audienceMemberName = audienceMemberName; }
+              if(!$scope.micStatus.power){
+                openPeerConnection($scope.roomName, $scope.audienceMemberName);
+              }else{
+                closePeerConnection($scope.roomName, $scope.audienceMemberName);
+              }
+            };
 
             // if you your handler updates the $scope, you need to call $scope.$apply
             // so angular knows to run a digest.
             $scope.$apply();
-          })
+          });
         })
         .config(['baseRTCProvider', function(baseRTCProvider) {
-          console.log('hey! in the confige')
+          console.log('hey! in the config');
 
           baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
           // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
@@ -43,7 +71,13 @@
     </script>
   </head>
   <body ng-app="ribbitAudienceRTC" ng-controller="audienceCtrl">
+    <form ng-submit="connectionManager(roomName, audienceMemberName)">
+      <input type="text" ng-model="roomName">
+      <input type="text" ng-model="audienceMemberName">
+      <button>Create Room!</button>
+    </form>
     <h1>Local Video</h1>
     <video id="local-video" autoplay muted style="width:40%;" ng-src="{{localStream}}"></video>
+    <button ng-click="connectionManager()">{{ micStatus.command }}</button>
   </body>
 </html>

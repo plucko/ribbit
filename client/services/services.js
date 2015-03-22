@@ -39,6 +39,8 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
       if (result !== '0') {
 
         /*$timeout(deferred.resolve, 0);*/
+
+        $rootScope.details = {'roomname': room, 'presenter': result.rooms[room].presenter};
         $rootScope.message = 'Room successfully created!';
         console.log('successful post request to /rooms: About to resolve the promise.');
         deferred.resolve(result);
@@ -86,6 +88,7 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     $http.post('/rooms/asAudience', {roomname: room}).success(function(result){
       if (result !== '0') {
         $rootScope.message = 'Found the room! Connecting you now.';
+        $rootScope.details = result;
         console.log('Found room and returning room info (result object)', result);
         deferred.resolve(result);
       } else {
