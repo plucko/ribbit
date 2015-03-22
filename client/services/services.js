@@ -39,10 +39,6 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
       if (result !== '0') {
 
         /*$timeout(deferred.resolve, 0);*/
-        console.log('---------result------------');
-        console.log(room);
-        console.log(result);
-        console.log(result.rooms[room]);
 
         $rootScope.details = {'roomname': room, 'presenter': result.rooms[room].presenter};
         $rootScope.message = 'Room successfully created!';

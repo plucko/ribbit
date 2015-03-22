@@ -135,7 +135,9 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
 
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
   audienceRTC.ready(function () {
-
+    $scope.roomName = $rootScope.details.roomname.slice();
+    $scope.presenter = $rootScope.details.presenter.slice();
+    $scope.audienceMemberName = 'Joey';
     // access local media stream in audienceRTC.localStream
     // to use as a src in the DOM, you must run it through a couple functions:
     // - window.URL.createObjectURL to transform the stream object into a blob URL
@@ -145,27 +147,25 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
 
     // utilize the audienceRTC factory (injected into the controller) to establish a connection with the presenter.
     // audienceRTC.connect will trigger baseRTC's connectToUser method.
-    var openPeerConnection = function(roomName, audienceMemberName){
-      audienceRTC.connect({ roomname: roomName, presenter: 'Ryan Atkinson' }, audienceMemberName);
+    var openPeerConnection = function(roomName, presenter, audienceMemberName){
+      audienceRTC.connect({ roomname: roomName, presenter: presenter }, audienceMemberName);
       $scope.micStatus.command = 'Turn off your mic!';
       $scope.micStatus.power = true;
     };
 
     // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
-    var closePeerConnection = function(roomName, audienceMemberName){
-      audienceRTC.disconnect({ roomname: roomName, presenter: 'Ryan Atkinson'}, audienceMemberName);
+    var closePeerConnection = function(roomName, presenter, audienceMemberName){
+      audienceRTC.disconnect({ roomname: roomName, presenter: presenter}, audienceMemberName);
       $scope.micStatus.command = 'Turn on your mic!';
       $scope.micStatus.power = false;
     };
 
     // based on the mics power attribute, determines whether to open or close a connection.
-    $scope.connectionManager = function(roomName, audienceMemberName){
-      if(roomName) { $scope.roomName = roomName; }
-      if(audienceMemberName) { $scope.audienceMemberName = audienceMemberName; }
+    $scope.connectionManager = function(){
       if(!$scope.micStatus.power){
-        openPeerConnection($scope.roomName, $scope.audienceMemberName);
+        openPeerConnection($scope.roomName, $scope.presenter, $scope.audienceMemberName);
       }else{
-        closePeerConnection($scope.roomName, $scope.audienceMemberName);
+        closePeerConnection($scope.roomName, $scope.presenter, $scope.audienceMemberName);
       }
     };
 

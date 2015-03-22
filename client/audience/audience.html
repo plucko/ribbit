@@ -1,8 +1,3 @@
-<form ng-submit="connectionManager(roomName, audienceMemberName)">
-  <input type="text" ng-model="roomName">
-  <input type="text" ng-model="audienceMemberName">
-  <button>Create Room!</button>
-</form>
 <h1>Local Video</h1>
 <video id="local-video" autoplay muted style="width:40%;" ng-src="{{localStream}}"></video>
 <button ng-click="connectionManager()">{{ micStatus.command }}</button>
