@@ -124,10 +124,13 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
 
 }]);
 
-micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', function($scope, $sce, audienceRTC) {
+micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '$rootScope', function($scope, $sce, audienceRTC, $rootScope) {
   // Initialize micStatus with default settings of power = off (false) and the option to "Turn on your mic!"
   // The power boolean is utilized to determine whether the views mic button will open a new peer connection with the presenter or close an existing connection.
   // The command will toggle based on the power state so the user is aware what will happen.
+  console.log('all about the details ------------');
+  console.log($rootScope.details);
+
   $scope.micStatus = {power: false, command: "Turn on your mic!"};
 
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
@@ -143,14 +146,14 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', f
     // utilize the audienceRTC factory (injected into the controller) to establish a connection with the presenter.
     // audienceRTC.connect will trigger baseRTC's connectToUser method.
     var openPeerConnection = function(roomName, audienceMemberName){
-      audienceRTC.connect({ roomname: roomName, presenter: 'fred' }, audienceMemberName);
+      audienceRTC.connect({ roomname: roomName, presenter: 'Ryan Atkinson' }, audienceMemberName);
       $scope.micStatus.command = 'Turn off your mic!';
       $scope.micStatus.power = true;
     };
 
     // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
     var closePeerConnection = function(roomName, audienceMemberName){
-      audienceRTC.disconnect({ roomname: roomName, presenter: 'fred'}, audienceMemberName);
+      audienceRTC.disconnect({ roomname: roomName, presenter: 'Ryan Atkinson'}, audienceMemberName);
       $scope.micStatus.command = 'Turn on your mic!';
       $scope.micStatus.power = false;
     };
@@ -175,7 +178,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', f
   };
 }]);
   
-micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', function($scope, $sce, presenterRTC) {
+micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', '$rootScope', function($scope, $sce, presenterRTC, $rootScope) {
   var addVideoElem = function (url) {
     console.log('adding video!');
     var vid = document.createElement('video');
@@ -186,15 +189,17 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
   };
 
   $scope.connections = [];
-
+  console.log($rootScope.details);
   // only connect once our RTC manager is ready!
   presenterRTC.ready(function () {
     // the first arg here is the room object, the second is the name of the presenter.
-    $scope.createRoom = function(roomName, presenterName){
-      console.log('testing');
-      presenterRTC.connect({ name: roomName, presenter: presenterName}, presenterName); 
+    // $scope.createRoom = function(roomName, presenterName){
+      // console.log('testing');
+      console.log($rootScope.details.roomname);
+      console.log($rootScope.details.presenter);
+      presenterRTC.connect({ name: $rootScope.details.roomname, presenter: $rootScope.details.presenter}, $rootScope.details.presenter); 
       console.log('testingEnd');
-    };
+    // };
   });
   
   presenterRTC.on('onremovestream', function(event, remoteUser, pc){
