@@ -23,8 +23,12 @@
 
           // only connect once our RTC manager is ready!
           presenterRTC.ready(function () {
-            // the first arg here is teh room object, the second is who we're connecting as
-            presenterRTC.connect({ name: 'aviary', presenter: 'fred'}, 'fred'); 
+            // the first arg here is the room object, the second is the name of the presenter.
+            $scope.createRoom = function(roomName, presenterName){
+              console.log('testing');
+              presenterRTC.connect({ name: roomName, presenter: presenterName}, presenterName); 
+              console.log('testingEnd');
+            };
           });
           
           presenterRTC.on('onremovestream', function(event, remoteUser, pc){
@@ -93,8 +97,13 @@
     </script>
   </head>
   <body ng-app="ribbitPresenterRTC" ng-controller="presenterCtrl">
-    <h1>Audience Video</h1>
-    Connections count: {{connections.length}}
-    <div id="videos"></div>
+    <form ng-submit="createRoom(roomName, presenterName)">
+      <input type="text" ng-model="roomName">
+      <input type="text" ng-model="presenterName">
+      <button>Create Room!</button>
+    </form>
+      <h1>Audience Video</h1>
+      Connections count: {{connections.length}}
+      <div id="videos"></div>
   </body>
 </html>
