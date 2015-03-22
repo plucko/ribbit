@@ -26,25 +26,27 @@
 
             // utilize the audienceRTC factory (injected into the controller) to establish a connection with the presenter.
             // audienceRTC.connect will trigger baseRTC's connectToUser method.
-            var openPeerConnection = function(){
-              audienceRTC.connect({ roomname: 'aviary', presenter: 'fred' }, 'ryan');
+            var openPeerConnection = function(roomName, audienceMemberName){
+              audienceRTC.connect({ roomname: roomName, presenter: 'fred' }, audienceMemberName);
               $scope.micStatus.command = 'Turn off your mic!';
               $scope.micStatus.power = true;
             };
 
             // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
-            var closePeerConnection = function(){
-              audienceRTC.disconnect({ roomname: 'aviary', presenter: 'fred'}, 'ryan');
+            var closePeerConnection = function(roomName, audienceMemberName){
+              audienceRTC.disconnect({ roomname: roomName, presenter: 'fred'}, audienceMemberName);
               $scope.micStatus.command = 'Turn on your mic!';
               $scope.micStatus.power = false;
             };
 
             // based on the mics power attribute, determines whether to open or close a connection.
-            $scope.connectionManager = function(){
+            $scope.connectionManager = function(roomName, audienceMemberName){
+              if(roomName) { $scope.roomName = roomName; }
+              if(audienceMemberName) { $scope.audienceMemberName = audienceMemberName; }
               if(!$scope.micStatus.power){
-                openPeerConnection();
+                openPeerConnection($scope.roomName, $scope.audienceMemberName);
               }else{
-                closePeerConnection();
+                closePeerConnection($scope.roomName, $scope.audienceMemberName);
               }
             };
 
@@ -69,6 +71,11 @@
     </script>
   </head>
   <body ng-app="ribbitAudienceRTC" ng-controller="audienceCtrl">
+    <form ng-submit="connectionManager(roomName, audienceMemberName)">
+      <input type="text" ng-model="roomName">
+      <input type="text" ng-model="audienceMemberName">
+      <button>Create Room!</button>
+    </form>
     <h1>Local Video</h1>
     <video id="local-video" autoplay muted style="width:40%;" ng-src="{{localStream}}"></video>
     <button ng-click="connectionManager()">{{ micStatus.command }}</button>
