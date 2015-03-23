@@ -1,3 +1,7 @@
+// This code is a duplicate of the code that exists in controllers.js.
+// Ideally, the factories would be separate out from the controllers in this fashion.
+// However, to limit moving parts in development, the logic utilized for the application currently exists in controllers.js.
+
 // Audience RTC:
 //  - Acquires the user's local media stream right away, upon instantiating
 //  - Connects specifically to the room's presenter.

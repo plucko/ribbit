@@ -34,3 +34,6 @@ githubapp.js
 
 # Database
 data/
+
+# Design
+*.sketch

@@ -1,12 +1,13 @@
-# Project Name
+# Ribbit
 
-> Pithy project description
+> Project Description
+Ribbit gives everyone in the audience an equal voice by turning each person's laptop or phone into a mic. No waiting for mics to be passed. No waiting for the mic to turn on. No need for mics at all! 
 
 ## Team
 
-  - __Product Owner__: teamMember
-  - __Scrum Master__: teamMember
-  - __Development Team Members__: teamMember, teamMember
+  - __Product Owner__: SungMin Chang
+  - __Scrum Master__: Ryan Atkinson
+  - __Development Team Members__: Brian Hsu, Andy Kitson
 
 ## Table of Contents
 
@@ -22,17 +23,27 @@
 
 > Some usage instructions
 
+
 ## Requirements
 
-- Node 0.10.x
-- Redis 2.6.x
-- Postgresql 9.1.x
-- etc
-- etc
+- Node 0.12.0
 
 ## Development
 
 ### Installing Dependencies
+have mongodb? If not:
+http://docs.mongodb.org/v2.2/tutorial/install-mongodb-on-os-x/
+
+githubapp.js
+  * You will need to include this file in the server folder.
+  * This file contains your credentials for Github authentication.
+  * It will contain the following:
+    module.exports = {
+     clientID:"< get this from signing up your app with github >",
+     secret:"< get this from signing up your app with github >"
+    };
+  * When you signup use the following for local testing:
+callbackURL: 'http://127.0.0.1:8000/auth/github/callback'
 
 From within the root directory:
 

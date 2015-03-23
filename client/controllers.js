@@ -4,21 +4,25 @@ var micControllers = angular.module('micControllers', ['ribbitBaseRTC', 'ngSanit
 //  - Acquires the user's local media stream right away, upon instantiating
 //  - Connects specifically to the room's presenter.
 // NOTE: The connect method must be passed a room that has a presenter property.
+// This factory builds off of the methods of baseRTC and returns a new object audienceRTC.
 micControllers.factory('audienceRTC', function (baseRTC) {
 
   // Get local media right away
   baseRTC.getMedia({ audio: true, video: true }); //TODO: take video out when done debugging
 
+  // Overwrites blank baseRTC.connect function to utilize baseRTC's connectToUser method with the given arguments.
   baseRTC.connect = function (room, user) {
     this.room = room;
     this.me = user;
     this.connectToUser(room.presenter);
   };
 
+  // Overwrites blank baseRTC.disconnect function to utilize baseRTC's disconnectFromUser method with the given arguments.
   baseRTC.disconnect = function(room, user){
     this.disconnectFromUser(room.presenter);
   };
   
+  // returns the baseRTC object with additional, audience specific methods and stores it as audienceRTC.
   return baseRTC;
 });
 
@@ -27,15 +31,18 @@ micControllers.factory('audienceRTC', function (baseRTC) {
 //   audience member in the room. It does this by asking everyone 
 //   in the room to send an offer for it can respond to
 // - It does not get a local media stream
+// This factory builds off of the methods of baseRTC and returns a new object audienceRTC.
 
 micControllers.factory('presenterRTC', function (baseRTC) {
   
+  // Overwrites blank baseRTC.connect function to utilize baseRTC's connectToRoom method with the given arguments.
   baseRTC.connect = function(room, name) {
     this.room = room;
     this.me = name;
     this.connectToRoom(this.room); 
   };
 
+  // returns the baseRTC object with additional, presenter specific methods and stores it as presenterRTC.
   return baseRTC;
 });
 
@@ -124,6 +131,8 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
 
 }]);
 
+// The AudienceController utilizes $rootScope to pass user information between controllers.
+// This is not an ideal implementation, and the 'Room' service should be utilized instead.
 micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '$rootScope', function($scope, $sce, audienceRTC, $rootScope) {
   // Initialize micStatus with default settings of power = off (false) and the option to "Turn on your mic!"
   // The power boolean is utilized to determine whether the views mic button will open a new peer connection with the presenter or close an existing connection.
@@ -201,7 +210,10 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
     console.log('onsignalingstatechange -------');
   });
 }]);
-  
+
+
+// The AudienceController utilizes $rootScope to pass user information between controllers.
+// This is not an ideal implementation, and the 'Room' service should be utilized instead.  
 micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', '$rootScope', function($scope, $sce, presenterRTC, $rootScope) {
   var addVideoElem = function (url) {
     console.log('adding video!');
@@ -251,6 +263,8 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
     console.log('onsignalingstatechange -------');
   });
   
+  // In order to properly utilize the onremovestream listener, the handshake between the peers must be renegotiated.
+  // http://stackoverflow.com/questions/16478486/webrtc-function-removestream-dont-launch-event-onremovestream-javascript
   presenterRTC.on('onremovestream', function(event, remoteUser, pc){
     console.log('we are in here, finally -------');
     console.log(event);
