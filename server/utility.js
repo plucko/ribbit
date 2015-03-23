@@ -1,7 +1,5 @@
 // Check to see user login (normal login or Github)
 exports.checkUser = function(req, res, next){
-  console.log('in the checkUser utility function, logging req.user object', req.user);
-  console.log('in the checkUser utility function, logging req.session object', req.session);
   if (req.user || req.session.passport !== {}) {
     console.log('in the checkUser utility function, about to execute next()');
     next();

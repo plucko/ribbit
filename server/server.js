@@ -50,10 +50,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Use Github authentication, githubApp is ignored in the repo
+// callback url can be http://localhost:8000/auth/github/callback
+// Use ngrok url for demo
 passport.use(new GithubStrategy({
   clientID: githubApp.clientID,
   clientSecret: githubApp.secret,
-  callbackURL: 'http://127.0.0.1:8000/auth/github/callback'
+  callbackURL: 'http://685c8275.ngrok.com/auth/github/callback'
 }, function(accessToken, refreshToken, profile, done){
   console.log('accessToken', accessToken);
   console.log('refreshToken', refreshToken);
@@ -99,9 +101,9 @@ app.get('/auth/github', function(req, res, next) {
   console.log('in the /auth path, trying to authenticate the user with passport');
   next();
 },
-    passport.authenticate('github', { failureRedirect: '/auth/error'}), function(req, res, next) {
-  console.log('Authenticated through the github strategy, executing the next piece of middleware and redirecting to /main');
-  console.log(req.user);
+  passport.authenticate('github', { failureRedirect: '/auth/error'}), function(req, res, next) {
+  // console.log('Authenticated through the github strategy, executing the next piece of middleware and redirecting to /main');
+  // console.log(req.user);
   res.redirect('/#/main');
 });
 
@@ -112,23 +114,23 @@ app.get('/auth/github/callback',
 );
 
 app.get('/loggedin', function(req, res) {
-  console.log('get request to /loggedin server path');
-  console.log('inside get/logged in, req.isAuthenticated()', req.isAuthenticated());
-  console.log('inside get/logged in, req.user', req.user);
-  console.log('inside get/logged in, req.session', req.session);
+  // console.log('get request to /loggedin server path');
+  // console.log('inside get/logged in, req.isAuthenticated()', req.isAuthenticated());
+  // console.log('inside get/logged in, req.user', req.user);
+  // console.log('inside get/logged in, req.session', req.session);
   res.send(req.isAuthenticated() ? req.user : '0');
 });
 
 // Lecturer post room logic
 app.post('/rooms', util.checkUser, function(req, res, next){
-  console.log('post request to /rooms, logging req.user: ', req.user);
-  console.log('post request to /rooms, logging req.session: ', req.session);
+  // console.log('post request to /rooms, logging req.user: ', req.user);
+  // console.log('post request to /rooms, logging req.session: ', req.session);
   handler.checkRoom(req, res, rooms);
 });
 
 app.post('/rooms/asAudience', util.checkUser, function(req, res, next){
-  console.log('post request to /rooms/asAudience, logging req.user: ', req.user);
-  console.log('post request to /rooms/asAudience, logging req.session: ', req.session);
+  // console.log('post request to /rooms/asAudience, logging req.user: ', req.user);
+  // console.log('post request to /rooms/asAudience, logging req.session: ', req.session);
   handler.checkPresenter(req, res, rooms);
 });
 

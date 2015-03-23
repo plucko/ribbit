@@ -1,9 +1,9 @@
-// After user login, send user to main page?\
+// After user login, send user to main page
 var User = require('./db-user.js');
 var util = require('./utility.js');
 
 exports.loginUser = function(req, res){
-  console.log(req.body);
+  // console.log(req.body);
   var username = req.body.username;
   var password = req.body.password;
 
@@ -13,15 +13,14 @@ exports.loginUser = function(req, res){
         console.log('user not found');
         res.send('0');
       } else {
-        console.log('user found, trying to match password');
         var savedPassword = user.password;
         User.comparePassword(password, savedPassword, function(err, match){
           if(match){
-            console.log('user found and matched');
+            // console.log('user found and matched');
             util.createSession(req, res, user);
             res.send('2');
           } else {
-            console.log('user found but not matched');
+            // console.log('user found but not matched');
             res.send('0');
           }
         });
@@ -33,12 +32,10 @@ exports.loginUser = function(req, res){
 exports.signupUser = function(req, res){
   var username = req.body.username;
   var password = req.body.password;
-  console.log('made it to request handler"s signup user function');
 
   User.findOne( {username: username})
     .exec(function(err, user){
       if (!user){
-        console.log('user not found in database, creating new user');
         var newUser = new User({
           username: username,
           password: password
@@ -47,9 +44,7 @@ exports.signupUser = function(req, res){
           if (err){
             res.send('0');
           }
-          console.log('createing new session');
           util.createSession(req, res, newUser);
-          console.log('created new session with newuser');
         });
       } else {
         console.log("Account already exists");
@@ -69,11 +64,9 @@ exports.logoutUser = function(req, res){
 // information in the case that it exists. Otherwise sends '0'.
 exports.checkPresenter = function(req, res, rooms) {
   var roomName = req.body.roomname;
-  console.log('inside the request handler checkPresenter function, logging out req.body', req.body);
 
   for (var room in rooms) {
     if (room === roomName) {
-      console.log('inside the checkPresenter handler function. Logging room: ', rooms[room]);
       res.send({roomname: room, presenter: rooms[room].presenter});
     }
   }
@@ -90,10 +83,6 @@ exports.checkRoom = function(req, res, rooms){
   
   var roomName = req.body.roomname;
   var lecturerName = req.session.passport.user.username;
-
-  console.log('inside the checkroom handler function. Logging req.body: ', req.body);
-  console.log('inside the checkroom handler function. Logging roomName: ', roomName);
-  console.log('inside the checkroom handler function. Logging lecturerName: ', lecturerName);
 
   for (var room in rooms){
     if (room === roomName){

@@ -69,7 +69,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/plucky-oatmeal/plucky-oatmeal.git"
-  }
+  },
   "author": "Andy Kitson, Brian Hsu, Ryan Atkinson, SungMin Chang",
   "license": "ISC",
   "bugs": {
