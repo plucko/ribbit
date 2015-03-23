@@ -136,7 +136,9 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
   audienceRTC.ready(function () {
     $scope.roomName = $rootScope.details.roomname.slice();
+    console.log('logging out $scope.roomName from the AudienceControl: ', $scope.roomName);
     $scope.presenter = $rootScope.details.presenter.slice();
+    console.log('logging out $scope.presenter from the AudienceControl: ', $scope.presenter);
     $scope.audienceMemberName = 'Joey';
     // access local media stream in audienceRTC.localStream
     // to use as a src in the DOM, you must run it through a couple functions:
@@ -258,7 +260,7 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
 micControllers.config(['baseRTCProvider', function(baseRTCProvider) {
   console.log('hey! in the config');
 
-  baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
+  baseRTCProvider.setSignalServer('ws://5df1e886.ngrok.com'); //normally must be set up by app
   // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
 
   baseRTCProvider.setPeerConnectionConfig({
