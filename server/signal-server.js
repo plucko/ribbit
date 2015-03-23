@@ -21,5 +21,5 @@ wsServer.on('connection', function (ws) {
   ws.on('message', function (message) {
     console.log('broadcasting message', message);
     wsServer.broadcast(message);
-  })
-})
+  });
+});

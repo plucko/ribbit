@@ -184,7 +184,7 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
   var addVideoElem = function (url) {
     console.log('adding video!');
     var vid = document.createElement('video');
-    vid.muted = true;
+    // vid.muted = true;
     vid.autoplay = true;
     vid.src = url;
     document.getElementById('videos').appendChild(vid);
