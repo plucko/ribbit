@@ -112,7 +112,7 @@ app.get('/loggedin', function(req, res) {
   console.log('get request to /loggedin server path');
   console.log('inside get/logged in, req.isAuthenticated()', req.isAuthenticated());
   console.log('inside get/logged in, req.user', req.user);
-  console.log('inside get/logged in, req.session', req.session)
+  console.log('inside get/logged in, req.session', req.session);
   res.send(req.isAuthenticated() ? req.user : '0');
 });
 
