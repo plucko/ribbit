@@ -2,6 +2,14 @@
 <html ng-app="micApp">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ribbit | Welcome</title>
+    <link rel="stylesheet" href="lib/foundation/css/foundation.css" />
+    <link rel="stylesheet" href="styles/ribbit.css" />
+    <link href='http://fonts.googleapis.com/css?family=Exo+2:200,300,400,100' rel='stylesheet' type='text/css'>
+    <script src="lib/foundation/js/vendor/modernizr.js"></script>
+    <meta charset="utf-8" />
+
     <script src="lib/angular/angular.js"></script>
     <script src="lib/angular-route/angular-route.js"></script>
     <script src="lib/angular-sanitize/angular-sanitize.js"></script>
@@ -13,8 +21,26 @@
     <script src="services/services.js"></script>
     <script src="app.js"></script>
   </head>
-  <body ng-controller='AuthControl'>
-    <p> {{ message }} </p>
-    <div ng-view></div>
+  <body ng-controller='AuthControl' data-equalizer>
+
+    <div class="row fullWidth" data-equalizer-watch>
+      <div class="large-12 columns" data-equalizer-watch>
+        <div class="large-4 columns left full-height" data-equalizer-watch>
+          <img src="logoFull.png" alt="Welcome to Ribbit!">
+        </div>
+        <div class="large-8 columns right full-height padLeft" style = "padding-left: 0" data-equalizer-watch>
+          <div class="large-8 medium-12 columns" style = "padding-left: 0">
+            <p> {{ message }} </p>
+            <div ng-view></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="lib/foundation/js/vendor/jquery.js"></script>
+    <script src="lib/foundation/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
   </body>
 </html>
