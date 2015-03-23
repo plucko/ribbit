@@ -25,8 +25,8 @@ function pageReady () {
   localVideo = document.getElementById('local-video');
   remoteVideo = document.getElementById('remote-video');
 
-  // serverConnection = new WebSocket('ws://11fc5137.ngrok.com')
-  serverConnection = new WebSocket('ws://localhost:3434')
+  // serverConnection = new WebSocket('ws://392f3dc0.ngrok.com');
+  serverConnection = new WebSocket('ws://127.0.0.1:3434');
 
   // Set up event handler for handling socket messages.
   // These message contain either ice candidates and offers 

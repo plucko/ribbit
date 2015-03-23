@@ -87,8 +87,9 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
     $http.post('/rooms/asAudience', {roomname: room}).success(function(result){
       if (result !== '0') {
+        $rootScope.details = {'roomname': result.roomname, 'presenter': result.presenter};
         $rootScope.message = 'Found the room! Connecting you now.';
-        $rootScope.details = result;
+        // $rootScope.details = result;
         console.log('Found room and returning room info (result object)', result);
         deferred.resolve(result);
       } else {

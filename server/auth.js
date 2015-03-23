@@ -1,3 +1,4 @@
+// Authentication callback for github strategy
 exports.callback = function(req, res){
   console.log('Login success from auth.js\'s callback function');
   res.redirect('/#/main');
