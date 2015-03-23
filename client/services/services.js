@@ -46,7 +46,7 @@ function roomFactory($http, $location, $rootScope) {
     $http.post('/rooms/asAudience', {roomname: room}).success(function(result){
       if (result !== '0') {
         console.log('posted to /rooms/asAudience, logging out the result: ', result);
-        $rootScope.details = {'roomname': result.roomname, 'presenter': result.presenter};
+        $rootScope.details = {'roomname': result.roomname, 'presenter': result.presenter, 'username': result.username};
         $rootScope.message = 'Found the room! Connecting you now.';
         console.log('Found room and returning room info (result object)', result);
         $location.url('/audience');
