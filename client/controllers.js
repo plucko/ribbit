@@ -137,7 +137,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   audienceRTC.ready(function () {
     $scope.roomName = $rootScope.details.roomname.slice();
     $scope.presenter = $rootScope.details.presenter.slice();
-    $scope.audienceMemberName = 'Joey';
+    $scope.username = $rootScope.details.username.slice();
     // access local media stream in audienceRTC.localStream
     // to use as a src in the DOM, you must run it through a couple functions:
     // - window.URL.createObjectURL to transform the stream object into a blob URL
@@ -147,15 +147,15 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
 
     // utilize the audienceRTC factory (injected into the controller) to establish a connection with the presenter.
     // audienceRTC.connect will trigger baseRTC's connectToUser method.
-    var openPeerConnection = function(roomName, presenter, audienceMemberName){
-      audienceRTC.connect({ roomname: roomName, presenter: presenter }, audienceMemberName);
+    var openPeerConnection = function(roomName, presenter, username){
+      audienceRTC.connect({ roomname: roomName, presenter: presenter }, username);
       $scope.micStatus.command = 'Turn off your mic!';
       $scope.micStatus.power = true;
     };
 
     // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
-    var closePeerConnection = function(roomName, presenter, audienceMemberName){
-      audienceRTC.disconnect({ roomname: roomName, presenter: presenter}, audienceMemberName);
+    var closePeerConnection = function(roomName, presenter, username){
+      audienceRTC.disconnect({ roomname: roomName, presenter: presenter}, username);
       $scope.micStatus.command = 'Turn on your mic!';
       $scope.micStatus.power = false;
     };
@@ -163,9 +163,9 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
     // based on the mics power attribute, determines whether to open or close a connection.
     $scope.connectionManager = function(){
       if(!$scope.micStatus.power){
-        openPeerConnection($scope.roomName, $scope.presenter, $scope.audienceMemberName);
+        openPeerConnection($scope.roomName, $scope.presenter, $scope.username);
       }else{
-        closePeerConnection($scope.roomName, $scope.presenter, $scope.audienceMemberName);
+        closePeerConnection($scope.roomName, $scope.presenter, $scope.username);
       }
     };
 
@@ -176,6 +176,30 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   $scope.toggle = function() {
     console.log("toggle");
   };
+  audienceRTC.on('onnegotiationneeded', function(event, remoteUser, pc){
+    console.log('onnegotiationneeded -------');
+  });
+  audienceRTC.on('ondatachannel', function(event, remoteUser, pc){
+    console.log('ondatachannel -------');
+  });
+  audienceRTC.on('onidpassertionerror', function(event, remoteUser, pc){
+    console.log('onidpassertionerror -------');
+  });
+  audienceRTC.on('onidentityresult', function(event, remoteUser, pc){
+    console.log('onidentityresult -------');
+  });
+  audienceRTC.on('onidentityresult', function(event, remoteUser, pc){
+    console.log('onidentityresult -------');
+  });
+  audienceRTC.on('onidpvalidationerror', function(event, remoteUser, pc){
+    console.log('onidpvalidationerror -------');
+  });
+  audienceRTC.on('onpeeridentity', function(event, remoteUser, pc){
+    console.log('onpeeridentity -------');
+  });
+  audienceRTC.on('onsignalingstatechange', function(event, remoteUser, pc){
+    console.log('onsignalingstatechange -------');
+  });
 }]);
   
 micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', '$rootScope', function($scope, $sce, presenterRTC, $rootScope) {
@@ -200,6 +224,31 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
       presenterRTC.connect({ name: $rootScope.details.roomname, presenter: $rootScope.details.presenter}, $rootScope.details.presenter); 
       console.log('testingEnd');
     // };
+  });
+
+  presenterRTC.on('onnegotiationneeded', function(event, remoteUser, pc){
+    console.log('onnegotiationneeded -------');
+  });
+  presenterRTC.on('ondatachannel', function(event, remoteUser, pc){
+    console.log('ondatachannel -------');
+  });
+  presenterRTC.on('onidpassertionerror', function(event, remoteUser, pc){
+    console.log('onidpassertionerror -------');
+  });
+  presenterRTC.on('onidentityresult', function(event, remoteUser, pc){
+    console.log('onidentityresult -------');
+  });
+  presenterRTC.on('onidentityresult', function(event, remoteUser, pc){
+    console.log('onidentityresult -------');
+  });
+  presenterRTC.on('onidpvalidationerror', function(event, remoteUser, pc){
+    console.log('onidpvalidationerror -------');
+  });
+  presenterRTC.on('onpeeridentity', function(event, remoteUser, pc){
+    console.log('onpeeridentity -------');
+  });
+  presenterRTC.on('onsignalingstatechange', function(event, remoteUser, pc){
+    console.log('onsignalingstatechange -------');
   });
   
   presenterRTC.on('onremovestream', function(event, remoteUser, pc){

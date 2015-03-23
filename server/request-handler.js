@@ -64,10 +64,12 @@ exports.logoutUser = function(req, res){
 // information in the case that it exists. Otherwise sends '0'.
 exports.checkPresenter = function(req, res, rooms) {
   var roomName = req.body.roomname;
+  var userName = req.session.passport.user.username;
+  console.log('inside the checkPresenter function, about to log req.session: ', req.session);
 
   for (var room in rooms) {
     if (room === roomName) {
-      res.send({roomname: room, presenter: rooms[room].presenter});
+      res.send({roomname: room, presenter: rooms[room].presenter, username: userName});
     }
   }
   res.send('0');
