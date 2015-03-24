@@ -30,7 +30,11 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> micServices = angular.module(<span class="hljs-string">'micServices'</span>, []);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> micServices = angular.module(<span class="hljs-string">'micServices'</span>, []);
+
+micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-string">'$http'</span>,<span class="hljs-string">'$location'</span>,<span class="hljs-string">'$rootScope'</span>,
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">roomFactory</span><span class="hljs-params">($http, $location, $rootScope)</span> </span>{
+  <span class="hljs-keyword">var</span> result = {};</pre></div></div>
             
         </li>
         
@@ -41,14 +45,10 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>‘$q’,’$timeout’,’$http’,’$location’,’$rootScope’,</p>
+              <p>Code adapted from source found in article
+<a href="https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs">https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs</a></p>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>
-micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-string">'$http'</span>, <span class="hljs-string">'$q'</span>,<span class="hljs-string">'$timeout'</span>,<span class="hljs-string">'$http'</span>,<span class="hljs-string">'$location'</span>,<span class="hljs-string">'$rootScope'</span>,
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">roomFactory</span><span class="hljs-params">($http, $q, $timeout, $http, $location, $rootScope)</span> </span>{
-  <span class="hljs-keyword">var</span> result = {};</pre></div></div>
             
         </li>
         
@@ -59,14 +59,12 @@ micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Taken and adapted from source code found in article
-<a href="https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs">https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs</a></p>
+              <p>This function will be invoked when a presenter has submitted the name
+for the room that he wishes to create.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  
-
-  result.tryToMakeRoom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(room)</span></span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  result.tryToMakeRoom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(room)</span></span>{</pre></div></div>
             
         </li>
         
@@ -77,25 +75,15 @@ micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Initialize a new promise</p>
+              <p>Make an AJAX call to check if the roomname is in use. If the roomname is available to use,
+the server will return a non ‘0’ answer. Else, the server sends ‘0’.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> deferred = $q.defer();
-
-    <span class="hljs-keyword">var</span> successCb = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span> </span>{
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'logging the success result from calling the createRoom function'</span>, result);
-      $location.url(<span class="hljs-string">'/presenter'</span>);
-    };
-
-    <span class="hljs-keyword">var</span> errorCb = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span> </span>{
-      <span class="hljs-built_in">console</span>.error(<span class="hljs-string">'logging the error from calling the createRoom function'</span>, err);
-      $location.url(<span class="hljs-string">'/main'</span>);
-    };
-
-    <span class="hljs-keyword">var</span> notifyCb = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span> </span>{
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'logging the notification result from calling the createRoom function'</span>, result);
-    };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>
+    $http.post(<span class="hljs-string">'/rooms'</span>, {roomname: room}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {</pre></div></div>
             
         </li>
         
@@ -106,11 +94,14 @@ micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Make an AJAX call to check if the user is logged in</p>
+              <p>Stored information in $rootScope as a band-aid solution for sharing information
+across controllers. It’d be worth investigating how to use the ‘Room’ service
+to hold onto the information.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    $http.post(<span class="hljs-string">'/rooms'</span>, {roomname: room}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        $rootScope.details = {<span class="hljs-string">'roomname'</span>: result.roomname, <span class="hljs-string">'presenter'</span>: result.presenter};
+        $rootScope.message = <span class="hljs-string">'Room successfully created!'</span>;</pre></div></div>
             
         </li>
         
@@ -121,9 +112,12 @@ micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>Authenticated</p>
+              <p>Redirects the browser through Angular’s routeProvider.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>        $location.url(<span class="hljs-string">'/presenter'</span>);
+      }</pre></div></div>
             
         </li>
         
@@ -134,21 +128,19 @@ micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Interacts with server code because server will be written something like
-app.get(‘/loggedin’, function(req, res) {
-res.send(req.isAuthenticated() ? req.user : ‘0’); }); </p>
+              <p>A response of ‘0’ means that the roomname, ‘FredsRoom’, already exists,
+and we display a message to the user to let him know that he should try to
+create a room with a different name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Room already exists.'</span>;
+        $location.url(<span class="hljs-string">'/main'</span>);
+      }
+    });
 
-        <span class="hljs-comment">/*$timeout(deferred.resolve, 0);*/</span>
-
-        $rootScope.details = {<span class="hljs-string">'roomname'</span>: room, <span class="hljs-string">'presenter'</span>: result.rooms[room].presenter};
-        $rootScope.message = <span class="hljs-string">'Room successfully created!'</span>;
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'successful post request to /rooms: About to resolve the promise.'</span>);
-        deferred.resolve(result);
-      }</pre></div></div>
+  };</pre></div></div>
             
         </li>
         
@@ -159,12 +151,20 @@ res.send(req.isAuthenticated() ? req.user : ‘0’); }); </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Not Authenticated</p>
+              <p>This function is invoked when an audience member has submitted the name
+of a room that he would like to join. If the room exists, the server will
+respond by sending back an object with the roomname, the presenter for the room,
+and the name of the user who made the request to join the room.
+The name of the user who made the request will be used later by the RTC
+code to let the presenter know who it is that wants to connect to the presenter.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">else</span> {
-        $rootScope.message = <span class="hljs-string">'Room already exists.'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>
+  result.returnPresenter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($scope, room)</span> </span>{
+
+    $http.post(<span class="hljs-string">'/rooms/asAudience'</span>, {roomname: room}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {</pre></div></div>
             
         </li>
         
@@ -175,20 +175,12 @@ res.send(req.isAuthenticated() ? req.user : ‘0’); }); </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>$timeout(function(){deferred.reject();}, 0);</p>
+              <p>console.log(‘posted to /rooms/asAudience, logging out the result: ‘, result);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        deferred.reject();
-        $location.url(<span class="hljs-string">'/main'</span>);
-      }
-    });
-
-    <span class="hljs-keyword">return</span> deferred.promise.catch(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span> </span>{
-        <span class="hljs-built_in">console</span>.error(err);
-      })
-      .then(successCb, errorCb, notifyCb);
-  };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        $rootScope.details = {<span class="hljs-string">'roomname'</span>: result.roomname, <span class="hljs-string">'presenter'</span>: result.presenter, <span class="hljs-string">'username'</span>: result.username};
+        $rootScope.message = <span class="hljs-string">'Found the room! Connecting you now.'</span>;</pre></div></div>
             
         </li>
         
@@ -199,96 +191,26 @@ res.send(req.isAuthenticated() ? req.user : ‘0’); }); </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>Function to check if the user is the presenter for the room. There should
-only be one presenter bound to each room, and anybody trying to request
-access to the presenter’s view and controller will be turned away if they
-are not the presenter.</p>
+              <p>console.log(‘Found room and returning room info (result object)’, result);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>
-  result.returnPresenter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($scope, room)</span> </span>{
-    <span class="hljs-keyword">var</span> deferred = $q.defer();
-
-    <span class="hljs-keyword">var</span> successCb = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span> </span>{
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'logging returnPresenter function\'s success result:'</span>, result);
-      $scope.room = result;
-      $location.url(<span class="hljs-string">'/audience'</span>);
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'inside the joinRoom function, logging out $scope.room: '</span>, $scope.room);
-      <span class="hljs-keyword">return</span> result;
-    };
-
-    <span class="hljs-keyword">var</span> errorCb = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span> </span>{
-      <span class="hljs-built_in">console</span>.error(err);
-      $location.url(<span class="hljs-string">'/main'</span>);
-    };
-
-    <span class="hljs-keyword">var</span> notifyCb = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span> </span>{
-      <span class="hljs-built_in">console</span>.log(result);
-    };
-
-    $http.post(<span class="hljs-string">'/rooms/asAudience'</span>, {roomname: room}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
-      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
-        $rootScope.message = <span class="hljs-string">'Found the room! Connecting you now.'</span>;
-        $rootScope.details = result;
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Found room and returning room info (result object)'</span>, result);
-        deferred.resolve(result);
+            <div class="content"><div class='highlight'><pre>        $location.url(<span class="hljs-string">'/audience'</span>);
       } <span class="hljs-keyword">else</span> {
         $rootScope.message = <span class="hljs-string">'Room does not exist!'</span>;
         <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Did not find room, returning room info (result object)'</span>, result);
-        deferred.reject(result);
-        $location.url(<span class="hljs-string">'#/main'</span>);
+        $location.url(<span class="hljs-string">'/main'</span>);
       } 
-    });
-
-    <span class="hljs-keyword">return</span> deferred.promise.catch(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span> </span>{
-        <span class="hljs-built_in">console</span>.error(err);
-      }).then(successCb, errorCb, notifyCb);
+    })
   };
 
   <span class="hljs-keyword">return</span> result;
 
 }]);
 
-micServices.factory(<span class="hljs-string">'Auth'</span>, [<span class="hljs-string">'$http'</span>, <span class="hljs-string">'$q'</span>,<span class="hljs-string">'$timeout'</span>,<span class="hljs-string">'$http'</span>,<span class="hljs-string">'$location'</span>,<span class="hljs-string">'$rootScope'</span>,
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">authFactory</span><span class="hljs-params">($http, $q, $timeout, $http, $location, $rootScope)</span> </span>{
-  <span class="hljs-keyword">var</span> result = {};
-
-  result.normalLogin = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(username, password)</span></span>{
-    <span class="hljs-keyword">var</span> deferred = $q.defer();
-
-    $http.post(<span class="hljs-string">'/login'</span>, {data: {username: username, password: password}}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
-      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'result !== 0'</span>, result);
-        deferred.resolve(result);
-      }
-      <span class="hljs-keyword">else</span> {
-        $rootScope.message = <span class="hljs-string">'Your username does not exist or your password was wrong.'</span>;
-        deferred.reject();
-        $location.url(<span class="hljs-string">'/'</span>);
-      }
-    });
-
-    <span class="hljs-keyword">return</span> deferred.promise;
-  };
-
-  result.signup = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(username, password)</span></span>{
-    <span class="hljs-keyword">var</span> deferred = $q.defer();
-
-    $http.post(<span class="hljs-string">'/signup'</span>, {data: {username: username, password: password}}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
-      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'result !== 0'</span>, result);
-        deferred.resolve(result);
-      }
-      <span class="hljs-keyword">else</span> {
-        $rootScope.message = <span class="hljs-string">'Username has already been taken.'</span>;
-        deferred.reject();
-        $location.url(<span class="hljs-string">'/'</span>);
-      }
-    });
-
-    <span class="hljs-keyword">return</span> deferred.promise;
-  };</pre></div></div>
+micServices.factory(<span class="hljs-string">'Auth'</span>, [<span class="hljs-string">'$http'</span>,<span class="hljs-string">'$location'</span>,<span class="hljs-string">'$rootScope'</span>,
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">authFactory</span><span class="hljs-params">($http, $location, $rootScope)</span> </span>{
+  <span class="hljs-keyword">var</span> result = {};</pre></div></div>
             
         </li>
         
@@ -299,19 +221,53 @@ micServices.factory(<span class="hljs-string">'Auth'</span>, [<span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>  .get(‘/auth’, {headers: {‘Access-Control-Allow-Origin’: ‘<a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a>‘ }}).success(function(result){
-  if (result !== ‘0’)
-    deferred.resolve(result);
-  else {
-    $rootScope.message = ‘gitLogin failed, don\’t know why.’;
-    deferred.reject();
-    $location.url(‘/‘);
-  }
-});</p>
+              <p>Not yet complete. We used MongoDb for the database, with
+Mongoose as our ORM.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>
+            <div class="content"><div class='highlight'><pre>  result.normalLogin = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(username, password)</span></span>{
+
+    $http.post(<span class="hljs-string">'/login'</span>, {data: {username: username, password: password}}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'result !== 0'</span>, result);
+      }
+      <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Your username does not exist or your password was wrong.'</span>;
+        $location.url(<span class="hljs-string">'/'</span>);
+      }
+    });
+
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Not yet complete. We used MongoDb for the database, with
+Mongoose as our ORM.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  result.signup = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(username, password)</span></span>{
+
+    $http.post(<span class="hljs-string">'/signup'</span>, {data: {username: username, password: password}}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'result !== 0'</span>, result);
+      }
+      <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Username has already been taken.'</span>;
+        $location.url(<span class="hljs-string">'/'</span>);
+      }
+    });
+
+  };
+
 
   <span class="hljs-keyword">return</span> result;
 
