@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>audience-rtc.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>audience-rtc.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Audience RTC:</p>
+<ul>
+<li>Acquires the user’s local media stream right away, upon instantiating</li>
+<li>Connects specifically to the room’s presenter.
+NOTE: The connect method must be passed a room that has a presenter property.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>angular.module(<span class="hljs-string">'ribbitAudienceRTC'</span>, [<span class="hljs-string">'ribbitBaseRTC'</span>, <span class="hljs-string">'ngSanitize'</span>])
+  .factory(<span class="hljs-string">'audienceRTC'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(baseRTC)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Get local media right away</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    baseRTC.getMedia({ audio: <span class="hljs-literal">true</span>, video: <span class="hljs-literal">true</span> }); <span class="hljs-comment">//TODO: take video out when done debugging</span>
+
+    baseRTC.connect = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(room, user)</span> </span>{
+      <span class="hljs-keyword">this</span>.room = room;
+      <span class="hljs-keyword">this</span>.me = user;
+      <span class="hljs-keyword">this</span>.connectToUser(room.presenter);
+    };
+
+    baseRTC.disconnect = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(room, user)</span></span>{
+      <span class="hljs-keyword">this</span>.disconnectFromUser(room.presenter);
+    };
+    
+    <span class="hljs-keyword">return</span> baseRTC;
+  });</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

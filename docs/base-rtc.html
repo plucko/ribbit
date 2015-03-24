@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>base-rtc.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>base-rtc.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>RibbitBaseRTC allows you to manage multiple WebRTC peer connections.
+It establishes a connection with the signal server and processes
+incoming messages, creating new peer connections in response to 
+offers, updating remote descriptions in response to answers, and
+adding ice candidates as they come in.</p>
+<p>It does not manage media streams or setting event handlers for 
+onaddstream, etc. Subclasses or clients can add these after
+initializing the base class or extend createConnectionTo.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Define the baseRTC constructor function which will be used to instantiate one baseRTC instance.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> makeBaseRTC = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(options)</span> </span>{
+  <span class="hljs-keyword">var</span> baseRTC = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Track tasks that need to be done before we are ‘ready’, then
+run more tasks once we’re done with setup.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> setupTasks = {};
+  <span class="hljs-keyword">var</span> onSetupComplete;
+  baseRTC.ready = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(fn)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>After all setup tasks are complete, the callback function provided as an argument will be fired.
+We are just storing the callback function here for later access via the maybeReady helper function.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    onSetupComplete = fn;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Check if all setup tasks are complete utilizing the maybeReady helper function defined below.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    maybeReady(); 
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>This function checks to see if all the tasks required for setup are complete.
+These tasks include:</p>
+<ol>
+<li>Opening a connection to the signal server utilizing web sockets</li>
+<li>Gaining access to the users hardware components (after a user accepts chromes request to give ribbit acces to the microphone, for example).</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> maybeReady = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">var</span> done = <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> task <span class="hljs-keyword">in</span> setupTasks) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>If any task status is false, do not fire onSetupComplete.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      done = done &amp;&amp; setupTasks[task]; 
+    }
+    <span class="hljs-keyword">if</span> (done) onSetupComplete(); 
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Connect to our signal server. We talk with other clients over 
+this server in order to establish peer connections to them.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.signalServer = <span class="hljs-keyword">new</span> WebSocket(options.signalServer);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Wait for signal server connection to open before we’re “ready”</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setupTasks.signalServer = <span class="hljs-literal">false</span>;
+  baseRTC.signalServer.onopen = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    setupTasks.signalServer = <span class="hljs-literal">true</span>;
+    maybeReady();
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>If this client will be streaming media to a peer, getMedia should be
+called before initiating the handshake (offer/answer) process. (Adding
+a stream after connection is established requires the connection to be 
+renegotiated, a process we don’t support now.)</p>
+<p>This method retrieves the media streams specified in the constraints
+parameter. It saves the streams so we can pass them to our peer connections 
+as we connect to them later.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.getMedia = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(constraints, success, error)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Defines which hardware components the user must grant ribbit access to (video = camera, audio = microphone).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    constraints = constraints || { video: <span class="hljs-literal">true</span>, audio: <span class="hljs-literal">true</span> };
+    error = error || <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{};
+
+    setupTasks.getMedia = <span class="hljs-literal">false</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Define success function to handle stream after user agrees to grant access to the microphone.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> mediaSuccess = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(stream)</span> </span>{
+      <span class="hljs-keyword">this</span>.localStream = stream; 
+      success &amp;&amp; success(stream);
+
+      setupTasks.getMedia = <span class="hljs-literal">true</span>;
+      maybeReady();
+
+    }.bind(<span class="hljs-keyword">this</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Browser-based function to request access to users camera and/or whatever is defined by the constraints.
+This method is normalized across browsers in rtc-normalizer. Takes success and error callback functions.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    navigator.getUserMedia(constraints, mediaSuccess, error);
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Save off config RTCPeerConnection needs to know how to connect
+to other clients</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.peerConnectionConfig = options.peerConnectionConfig;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Maintain multiple peer connections, indexed by remote user</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.peerConnections = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Create a peer connection, and set it up to trickle ICE candidates
+and have access to our local media stream (if we have one). It’s up
+to the caller to generate an offer/answer if that’s what it
+wants to do.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.createPeerConnection = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(remoteUser)</span> </span>{
+    <span class="hljs-keyword">if</span> (!remoteUser) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'baseRTC.createPeerConnection: cannot create new peer connection without remote user'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>RTCPeerConnection is WebRTC’s abstraction permitting audio and video connections between peers.
+This object manages local video/audio setting information and handles the network addresses peers will use to connect.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> pc = <span class="hljs-keyword">new</span> RTCPeerConnection(<span class="hljs-keyword">this</span>.peerConnectionConfig);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Add all existing peerConnection event handlers to new peerConnections.
+Handlers are registered via the baseRTC.on method defined below.
+Make the remote user and peerConnection object available to the handler
+The iterator e (stands for event) must be stored as a property on the function in order to give us closure access at the time the event handler needs triggered.
+Otherwise, the iterator would progess to the end and the handler lookup would always be the last handler in the object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> that = <span class="hljs-keyword">this</span>.handlers;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> e <span class="hljs-keyword">in</span> that) {
+      pc[e] = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handler</span> <span class="hljs-params">()</span> </span>{
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">var</span> func = that[handler.key];
+        <span class="hljs-keyword">var</span> args = <span class="hljs-built_in">Array</span>.prototype.slice.call(<span class="hljs-built_in">arguments</span>);
+        args.push(remoteUser, pc);
+        func.apply(<span class="hljs-literal">undefined</span>, args);
+      };
+      pc[e].key = e;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>This handler is called when network candidates become available.
+Sends ICE candidates to remote peer as they are added.
+ICE Candidates are transport addresses existing on each peers’ machine, a combination of IP address and port for a particular transfer protocol.
+ICE basically analyzes all of the candidates (transport addresses) between two peers. Not all candidates will work together, so ICE is responsible for finding a suitable match.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    pc.onicecandidate = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(event)</span> </span>{
+      <span class="hljs-keyword">if</span> (event.candidate !== <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">this</span>._send({ <span class="hljs-string">'ice'</span>: event.candidate }, remoteUser, <span class="hljs-string">'ice'</span>);
+      }
+    }.bind(<span class="hljs-keyword">this</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Add our media stream if we have one</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.localStream) {
+      pc.addStream(<span class="hljs-keyword">this</span>.localStream);
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>finally, add new peer connection to our cache</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.peerConnections[remoteUser] = pc;
+    <span class="hljs-keyword">return</span> pc;
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Subclasses must implement — some will connect to a room, others to a user.
+In either case, the room is the room they are connecting to. It takes an 
+object of the form: { name: ‘living room’, presenter: ‘fred’ }. The user
+is the user they are connecting as (not who they are connecting to).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.connect = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(room, user)</span> </span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'ERROR: called connect method on base class. Subclasses must implement .connect'</span>);
+  };
+
+  baseRTC.disconnect = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(room, user)</span> </span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'ERROR: called connect method on base class. Subclasses must implement .connect'</span>);
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Ask all clients in room to send an offer. They all generate offers that
+we can then give an answer to. Why do this? Because we don’t know who else
+is in the room, so we don’t know what peer connections to generate so we can 
+create offers. So instead, we ask for offers and now we know which peer 
+connections to create.
+TODO: fix the hacky way we’re sending a message to the entire room. It shouldn’t go to ‘everyone’</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.connectToRoom = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(room)</span> </span>{
+    <span class="hljs-keyword">this</span>._send({ <span class="hljs-string">'requester'</span>: <span class="hljs-keyword">this</span>.me }, <span class="hljs-string">'everyone'</span>, <span class="hljs-string">'request-for-offer'</span>); 
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Create peer connection to a specific user and send them an offer. </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.connectToUser = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(remoteUser)</span> </span>{
+    <span class="hljs-keyword">var</span> pc = <span class="hljs-keyword">this</span>.createPeerConnection(remoteUser);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>createOffer method generates an offer (SDP session description) that will be sent to peer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    pc.createOffer(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(description)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Before the offer is sent to the peer, the local description must be set to match the offer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      pc.setLocalDescription(description, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>The offer is stringified utilizing the _send helper method below.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>._send(description, remoteUser, <span class="hljs-string">'offer'</span>); 
+      }.bind(<span class="hljs-keyword">this</span>));
+    }.bind(<span class="hljs-keyword">this</span>), <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(err)</span> </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'offer erorr: '</span>, err); });
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Close peer connection to a specific user.
+This method gets called by an audience member to turn off their mic and stop audio from streaming </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.disconnectFromUser = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(remoteUser)</span></span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Lookup user in peerConnections object;</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> pc = <span class="hljs-keyword">this</span>.peerConnections[remoteUser];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Utilize built-in RTCPeerConnection close method <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/close">https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/close</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    pc.removeStream(<span class="hljs-keyword">this</span>.localStream);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>pc.close();</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Helper method to send a message to a specific recipient. Make sure all 
+messages are sent with a similar format. In particular, we need all messages
+to have a sender, recipient, toom, and type. Otherwise, our onmessage handler
+doesn’t know what to do. See the handler for details on how these fields are used.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC._send = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(message, recipient, messageType)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>Since SDPs are not natively JavaScript, the SDP is encapsulated in a SessionDescription object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.signalServer.send(<span class="hljs-built_in">JSON</span>.stringify({
+      sender: <span class="hljs-keyword">this</span>.me,
+      room: <span class="hljs-keyword">this</span>.room,
+      recipient: recipient, 
+      type: messageType,
+      contents: message
+    }));
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Handles the process of peers accepting offers from other peers.
+Message structure is described in _send.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> onMessage = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(message)</span> </span>{
+    <span class="hljs-keyword">var</span> data = <span class="hljs-built_in">JSON</span>.parse(message.data);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>Screen out messages we don’t care about. This is a hack to make up 
+for the signal server sending everything to everyone. Really, the
+signal server should send a message if and only if we need to see it.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (!data.sender) <span class="hljs-keyword">return</span>;
+    <span class="hljs-keyword">if</span> (data.recipient !== <span class="hljs-keyword">this</span>.me &amp;&amp; 
+        (data.recipient !== <span class="hljs-string">'everyone'</span> || 
+          data.sender === <span class="hljs-keyword">this</span>.me)) {
+          <span class="hljs-keyword">return</span>;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>Super useful for debugging. Most issues are somewhere in this function.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">console</span>.log(data);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>For offers and request-for-offers, we create a new peer connection, 
+even if we already have one. For ice candidates and answers, we use
+the peer connection we already have.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> pc;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>Respond to offer by setting new pc’s remote description and sending an answer
+that contains our description</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (data.type === <span class="hljs-string">'offer'</span>) {
+      pc = <span class="hljs-keyword">this</span>.createPeerConnection(data.sender);
+      <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>; <span class="hljs-comment">//for _send below</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>Provide local RTCPeerConnection with all the necessary details about the remote peer, provided in the offer message</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      pc.setRemoteDescription(<span class="hljs-keyword">new</span> RTCSessionDescription(data.contents), <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>Generate the message ‘answer’ that will be the response to the offer made by the remote peer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        pc.createAnswer(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(answer)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>Set local description and utilize the local description as the answer to the offer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          pc.setLocalDescription(answer, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <p>Use signal server to stringify answer and send back to peer that made the offer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            self._send(answer, data.sender, <span class="hljs-string">'answer'</span>);
+          });
+        });
+      });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>Send an offer if asked  </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.type === <span class="hljs-string">'request-for-offer'</span>) {
+      pc = <span class="hljs-keyword">this</span>.createPeerConnection(data.sender);
+      <span class="hljs-keyword">this</span>.connectToUser(data.contents.requester);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>Respond to answers by just updating our remote description </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.type === <span class="hljs-string">'answer'</span>) {
+      pc = <span class="hljs-keyword">this</span>.peerConnections[data.sender];
+      pc.setRemoteDescription(<span class="hljs-keyword">new</span> RTCSessionDescription(data.contents));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>Add ICE Candidates as they come in — the remote peer’s oneicecandidate handler sends these</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.type === <span class="hljs-string">'ice'</span>) {
+      pc = <span class="hljs-keyword">this</span>.peerConnections[data.sender];
+      pc.addIceCandidate(<span class="hljs-keyword">new</span> RTCIceCandidate(data.contents.ice));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p>Oops! Where’d this message come from?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'baseRTC:onMessage - unhandled message type: '</span> + data.type, data);
+    }
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p>Use onMessage to handle messages coming from signal server</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  baseRTC.signalServer.onmessage = onMessage.bind(baseRTC);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <p>Peer connections emit events, like onaddstream and onremovestream.
+.on allows you to specify handlers for those events. The handler
+is added to any current peer connections. createPeerConnection
+adds hanlders specified here to any new peer connections it creates.
+Eventually, would like to support events not native to peer connections.
+Note: the remote user and peer connection object are the last two arguments
+passed to the handlers.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> handlers = baseRTC.handlers = {};
+  baseRTC.on = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(event, handler)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-49">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+              <p>Add to existing connections</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> u <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.peerConnections) {
+      <span class="hljs-keyword">this</span>.peerConnections[u][event] = handler;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-50">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p>Save so we can add to peer connections we create in the future</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    handlers[event] = handler; <span class="hljs-comment">//only one handler per event for now</span>
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p>Return completed baseRTC object from constructor function.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">return</span> baseRTC;
+
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <hr>
+<p>   Angularization</p>
+<hr>
+<p>We use a provider because there is app-level configuration
+that should not be hardcoded. Specifically, you must set:</p>
+<ul>
+<li>The url of your signal server (which must use sockets)</li>
+<li>The ICE servers that peer connections will use in figuring out
+how to talk to each other.</li>
+</ul>
+<p>This is what a valid config looks like, though your specific config
+will be different:</p>
+<pre><code>angular.module(<span class="hljs-string">'yourApp'</span>)
+ .config([<span class="hljs-string">'baseRTCProvider'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(baseRTCProvider)</span> </span>{
+    baseRTCProvider.setSignalServer(<span class="hljs-string">'ws://localhost:3434'</span>); 
+    baseRTCProvider.setPeerConnectionConfig({
+      <span class="hljs-string">'iceServers'</span>: [
+        {<span class="hljs-string">'url'</span>: <span class="hljs-string">'stun:stun.services.mozilla.com'</span>}, 
+        {<span class="hljs-string">'url'</span>: <span class="hljs-string">'stun:stun.l.google.com:19302'</span>}
+      ]
+    });
+  }]);
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+angular.module(<span class="hljs-string">'ribbitBaseRTC'</span>, [<span class="hljs-string">'ngSanitize'</span>])
+  .provider(<span class="hljs-string">'baseRTC'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">var</span> signalServer;
+    <span class="hljs-keyword">this</span>.setSignalServer = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> </span>{
+      signalServer = url;
+    };
+
+    <span class="hljs-keyword">var</span> peerConnectionConfig;
+    <span class="hljs-keyword">this</span>.setPeerConnectionConfig = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(config)</span> </span>{
+      peerConnectionConfig = config;
+    };
+
+    <span class="hljs-keyword">this</span>.$get = [<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+      <span class="hljs-keyword">if</span> (!signalServer) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'RTC Config Error: you must set the signal server in angular.config, e.g.: BaseRTCProvider.setSignalServer("url for your signal server&gt;")'</span>);
+      }
+      <span class="hljs-keyword">if</span> (!peerConnectionConfig) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'RTC Config Error: you must set the peer connection configu in angular.config, e.g.: BaseRTCProvider.setPeerConnectionConfig({iceServers: [{url: &lt;url&gt;}, {url: &lt;url&gt;}]})'</span>);
+      }
+
+      <span class="hljs-keyword">return</span> makeBaseRTC({ 
+        signalServer: signalServer, 
+        peerConnectionConfig: peerConnectionConfig 
+      });
+    }];  
+  });</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
