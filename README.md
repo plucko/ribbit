@@ -36,7 +36,8 @@ http://docs.mongodb.org/v2.2/tutorial/install-mongodb-on-os-x/
 
 githubapp.js
   * You will need to include this file in the server folder.
-  * This file contains your credentials for Github authentication.
+  * It is not included in the repo because it is .gitignore(d).
+  * **This file contains your credentials for Github authentication, so it should never be pushed to the repo!**
   * It will contain the following:
     module.exports = {
      clientID:"< get this from signing up your app with github >",
