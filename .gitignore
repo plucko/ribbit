@@ -37,3 +37,6 @@ data/
 
 # Design
 *.sketch
+
+# DS_Store
+.DS_Store
