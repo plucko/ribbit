@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>services.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>services.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> micServices = angular.module(<span class="hljs-string">'micServices'</span>, []);
+
+micServices.factory(<span class="hljs-string">'Room'</span>, [<span class="hljs-string">'$http'</span>,<span class="hljs-string">'$location'</span>,<span class="hljs-string">'$rootScope'</span>,
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">roomFactory</span><span class="hljs-params">($http, $location, $rootScope)</span> </span>{
+  <span class="hljs-keyword">var</span> result = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Code adapted from source found in article
+<a href="https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs">https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs</a></p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>This function will be invoked when a presenter has submitted the name
+for the room that he wishes to create.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  result.tryToMakeRoom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(room)</span></span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Make an AJAX call to check if the roomname is in use. If the roomname is available to use,
+the server will return a non ‘0’ answer. Else, the server sends ‘0’.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+    $http.post(<span class="hljs-string">'/rooms'</span>, {roomname: room}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Stored information in $rootScope as a band-aid solution for sharing information
+across controllers. It’d be worth investigating how to use the ‘Room’ service
+to hold onto the information.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        $rootScope.details = {<span class="hljs-string">'roomname'</span>: result.roomname, <span class="hljs-string">'presenter'</span>: result.presenter};
+        $rootScope.message = <span class="hljs-string">'Room successfully created!'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Redirects the browser through Angular’s routeProvider.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        $location.url(<span class="hljs-string">'/presenter'</span>);
+      }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>A response of ‘0’ means that the roomname, ‘FredsRoom’, already exists,
+and we display a message to the user to let him know that he should try to
+create a room with a different name.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Room already exists.'</span>;
+        $location.url(<span class="hljs-string">'/main'</span>);
+      }
+    });
+
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>This function is invoked when an audience member has submitted the name
+of a room that he would like to join. If the room exists, the server will
+respond by sending back an object with the roomname, the presenter for the room,
+and the name of the user who made the request to join the room.
+The name of the user who made the request will be used later by the RTC
+code to let the presenter know who it is that wants to connect to the presenter.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+  result.returnPresenter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($scope, room)</span> </span>{
+
+    $http.post(<span class="hljs-string">'/rooms/asAudience'</span>, {roomname: room}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>console.log(‘posted to /rooms/asAudience, logging out the result: ‘, result);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        $rootScope.details = {<span class="hljs-string">'roomname'</span>: result.roomname, <span class="hljs-string">'presenter'</span>: result.presenter, <span class="hljs-string">'username'</span>: result.username};
+        $rootScope.message = <span class="hljs-string">'Found the room! Connecting you now.'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>console.log(‘Found room and returning room info (result object)’, result);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        $location.url(<span class="hljs-string">'/audience'</span>);
+      } <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Room does not exist!'</span>;
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Did not find room, returning room info (result object)'</span>, result);
+        $location.url(<span class="hljs-string">'/main'</span>);
+      } 
+    })
+  };
+
+  <span class="hljs-keyword">return</span> result;
+
+}]);
+
+micServices.factory(<span class="hljs-string">'Auth'</span>, [<span class="hljs-string">'$http'</span>,<span class="hljs-string">'$location'</span>,<span class="hljs-string">'$rootScope'</span>,
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">authFactory</span><span class="hljs-params">($http, $location, $rootScope)</span> </span>{
+  <span class="hljs-keyword">var</span> result = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Not yet complete. We used MongoDb for the database, with
+Mongoose as our ORM.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  result.normalLogin = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(username, password)</span></span>{
+
+    $http.post(<span class="hljs-string">'/login'</span>, {data: {username: username, password: password}}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'result !== 0'</span>, result);
+      }
+      <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Your username does not exist or your password was wrong.'</span>;
+        $location.url(<span class="hljs-string">'/'</span>);
+      }
+    });
+
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Not yet complete. We used MongoDb for the database, with
+Mongoose as our ORM.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  result.signup = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(username, password)</span></span>{
+
+    $http.post(<span class="hljs-string">'/signup'</span>, {data: {username: username, password: password}}).success(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(result)</span></span>{
+      <span class="hljs-keyword">if</span> (result !== <span class="hljs-string">'0'</span>) {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'result !== 0'</span>, result);
+      }
+      <span class="hljs-keyword">else</span> {
+        $rootScope.message = <span class="hljs-string">'Username has already been taken.'</span>;
+        $location.url(<span class="hljs-string">'/'</span>);
+      }
+    });
+
+  };
+
+
+  <span class="hljs-keyword">return</span> result;
+
+}]);</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
