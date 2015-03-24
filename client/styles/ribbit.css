@@ -1,11 +1,40 @@
+h1, li{
+  font-size: 30px;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 200;
+  text-align: center;
+  color: #FFFFFF;
+}
+
+li{
+  list-style: none;
+  font-size: 26px;
+}
+
+video{
+  display: none;
+}
+
+p.ng-binding{
+  font-size: 30px;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 200;
+  text-align: center;
+  color: #FFFFFF;
+}
+
 a, a:hover{
   display: block;
   margin: 0 auto;
   color: #FFFFFF;
 }
 
+a:hover{
+  color: #FAFAFA;
+}
+
 a img{
-  width: 64px;
+  width: 54px;
   display: inline;
   margin-right: = 1.0em;
 }
@@ -16,7 +45,7 @@ a p{
   font-weight: 200;
   color: #FFFFF;
   border-left: 1px solid rgba(255,255,255,0.15);
-  padding: .5em 1.0em;
+  padding: .3em 1.0em;
   font-size: 26px;
   margin-left: .7em;
 }
@@ -40,6 +69,7 @@ div.large-12{
 
 .right{
   background: #4A4A4A;
+  overflow: scroll;
 }
 
 .left img{
@@ -52,11 +82,21 @@ hr{
   margin: 0 auto;
 }
 
+hr.bord{
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.10);
+  margin: 1.0em 0;
+}
+
+form{
+  text-align: center;
+}
+
 form button{
   display: block;
   clear: both;
   background: none;
-  border: none;
+  border: 1px solid rgba(255,255,255,0);
   font-family: 'Exo 2', sans-serif;
   font-weight: 200;
   font-size: 26px;
@@ -69,10 +109,48 @@ form button:hover{
   border-radius: 4px;
 }
 
+form button.main, a.closingTime{
+  display: block;
+  margin:1.0em auto;
+  background: #18A497;
+  border-radius: 8px;
+  text-align: center;
+  clear: both;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 200;
+  font-size: 26px;
+  width: 50%;
+  margin-right: 6.0em;
+  padding: .3em;
+}
+
+form button.main.two{
+  background-color: #E95F44;
+}
+
+form button.main:hover{
+  border: 1px solid rgba(255,255,255,0);
+  background: #19373F;
+}
+
 input[type=text], input[type=text]:focus {
   text-align: center;
   background: none;
   border: none;
+  box-shadow: none;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 100;
+  font-size: 26px;
+  color: #FFFFFF;
+  line-height: 31px;
+  display: inline-block;
+  width: 100%;
+}
+
+.split input[type=text], .split input[type=text]:focus {
+  text-align: center;
+  background: none;
+  border-bottom: 1px solid #FFFFFF;
   box-shadow: none;
   font-family: 'Exo 2', sans-serif;
   font-weight: 100;
@@ -94,5 +172,18 @@ div.padLeft{
 }
 
 div.first{
-  margin-top: 7em;
+  margin: 7em 0 5em 0;
+}
+
+div.first a{
+  text-align: center;
+  width: 100%;
+}
+
+.split{
+  text-align: center;
+}
+
+.split h1{
+  margin: 2.0em 0;
 }

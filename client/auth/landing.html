@@ -2,32 +2,34 @@
 
 <!-- Got the idea for an a tag from http://stackoverflow.com/questions/26029627/angular-node-express-passport-cross-domain-problems-enable-cors-passport-faceb -->
 
-<div class="logRow first">
+<div class="first">
+  <hr class="bord">
   <a href='/auth/github'>
     <img src="githubLogo.png" alt="github logo">
     <p>log in with github</p>
   </a>
+  <hr class="bord">
 </div>
 
 <div>
   <form ng-submit="normalLogin(username, password)">
-    <div class="logRow">
-      <input type="text" ng-model="username" placeholder="username" class="top">
-      <hr>
-      <input type="text" ng-model="password" placeholder="password" class="bottom">
-    </div>
-      <button>sign in</button>
+    <hr class="bord">
+    <input type="text" ng-model="username" placeholder="username" class="top">
+    <hr>
+    <input type="text" ng-model="password" placeholder="password" class="bottom">
+    <hr class="bord">
+    <button>sign in</button>
   </form>
 </div>
 
 <div>
   <form ng-submit="signup(username, password)">
-    <div class="logRow">
-      <input type="text" ng-model="username" placeholder="username" class="top">
-      <hr>
-      <input type="text" ng-model="password" placeholder="password" class="bottom"> 
-    </div>
-      <button>sign up</button>
+    <hr class="bord">
+    <input type="text" ng-model="username" placeholder="username" class="top">
+    <hr>
+    <input type="text" ng-model="password" placeholder="password" class="bottom"> 
+    <hr class="bord">
+    <button>sign up</button>
   </form>
 </div>
 
