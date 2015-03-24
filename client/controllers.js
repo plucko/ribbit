@@ -1,50 +1,5 @@
-var micControllers = angular.module('micControllers', ['ribbitBaseRTC', 'ngSanitize']);
+var micControllers = angular.module('micControllers', ['ribbitAudienceRTC', 'ribbitPresenterRTC', 'ngSanitize']);
 
-// Audience RTC:
-//  - Acquires the user's local media stream right away, upon instantiating
-//  - Connects specifically to the room's presenter.
-// NOTE: The connect method must be passed a room that has a presenter property.
-// This factory builds off of the methods of baseRTC and returns a new object audienceRTC.
-micControllers.factory('audienceRTC', function (baseRTC) {
-
-  // Get local media right away
-  baseRTC.getMedia({ audio: true, video: true }); //TODO: take video out when done debugging
-
-  // Overwrites blank baseRTC.connect function to utilize baseRTC's connectToUser method with the given arguments.
-  baseRTC.connect = function (room, user) {
-    this.room = room;
-    this.me = user;
-    this.connectToUser(room.presenter);
-  };
-
-  // Overwrites blank baseRTC.disconnect function to utilize baseRTC's disconnectFromUser method with the given arguments.
-  baseRTC.disconnect = function(room, user){
-    this.disconnectFromUser(room.presenter);
-  };
-  
-  // returns the baseRTC object with additional, audience specific methods and stores it as audienceRTC.
-  return baseRTC;
-});
-
-// PresenterRTC has two unique features:
-// - Its connect method establishes a peer connection with each
-//   audience member in the room. It does this by asking everyone 
-//   in the room to send an offer for it can respond to
-// - It does not get a local media stream
-// This factory builds off of the methods of baseRTC and returns a new object audienceRTC.
-
-micControllers.factory('presenterRTC', function (baseRTC) {
-  
-  // Overwrites blank baseRTC.connect function to utilize baseRTC's connectToRoom method with the given arguments.
-  baseRTC.connect = function(room, name) {
-    this.room = room;
-    this.me = name;
-    this.connectToRoom(this.room); 
-  };
-
-  // returns the baseRTC object with additional, presenter specific methods and stores it as presenterRTC.
-  return baseRTC;
-});
 
 micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Auth) {
 
@@ -321,7 +276,7 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
 micControllers.config(['baseRTCProvider', function(baseRTCProvider) {
   console.log('hey! in the config');
   
-  baseRTCProvider.setSignalServer('ws://5df1e886.ngrok.com');
+  baseRTCProvider.setSignalServer('ws://3a3cddc1.ngrok.com');
   // baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
   // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
 
