@@ -1,5 +1,24 @@
+<div class="row split">
+  <div class="large-12 columns">
+    <h1>Presenters</h1>
+    <form ng-submit="createRoom(roomToCreate)">
+      <input ng-model="roomToCreate" type="text" placeholder="Enter the new room's name!">
+      <button class="main">Create a room</button>
+    </form>
+  </div>
+
+  <div class="large-12 columns" style="text-align:center; margin-top:3.0em">
+    <h1>Audience Members</h1>
+    <form ng-submit="joinRoom(roomname)">
+      <input ng-model="roomname" type="text" placeholder="Enter the name of the room to join."></input>
+      <button class="main two">Join a room</button>
+    </form>
+  </div>
+</div>
+
+<!-- 
 <input ng-model="roomToCreate" type="text">
 <button ng-click="createRoom(roomToCreate)">Create a room</button>
 <form ng-submit="joinRoom(roomname)">
   <input ng-model="roomname" placeholder="Enter room's name"></input>
-</form>
+</form> -->
