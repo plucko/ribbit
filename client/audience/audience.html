@@ -1,12 +1,13 @@
-<h1>Local Video</h1>
-<video id="local-video" autoplay muted style="width:40%;" ng-src="{{localStream}}"></video>
-<button ng-click="connectionManager()">{{ micStatus.command }}</button>
-
-
-<div>
-  <a href='#/main'>Exit the room </a>
+<div class="row first">
+  <div class="large-12 columns">
+    <video id="local-video" autoplay muted style="width:40%;" ng-src="{{localStream}}"></video>
+    <button ng-click="connectionManager()">{{ micStatus.command }}</button>  
+  </div>
+</div>
+<div class="row first">
+  <div class="large-12 columns">
+    <a href='#/main' class="closingTime" style="background-color:#E95F44">Exit the room </a>
+  </div>
 </div>
 
-<div class="micToggle" ng-click="toggle()">
-  <img src="mic.svg">
-</div>
+

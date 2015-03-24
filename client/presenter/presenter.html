@@ -1,20 +1,20 @@
-  <h1>Audience Video</h1>
-  Connections count: {{connections.length}}
-  <div id="videos"></div>
+<div class="first" style="margin-top:18em">
+  <div class="large-12 columns">
+    <div class="large-6 columns">
+      <h1>Connections count: {{connections.length}}</h1>
+      <div id="videos"></div>
+    </div>
+    <div class="large-6 columns">
+      <h1>Participants currently in the room</h1>
+      <ul ng-repeat="connection in connections">
+        <li> {{ connection.user }} </li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-
-
-<div>
-  <a href="#/main">End the session</a>
-  <th>Participants currently in the room
-    <tr ng-repeat="user in users">
-      <td> {{ user.name }} </td>
-    </tr>
-  </th>
-    <!-- <div ng-repeat="user in users" ng-click="mute(user)"> -->
-      <!-- <tr> -->
-        <!-- <td> {{ user.name }}</td> -->
-        <!-- <td> {{ Mic icon that lets you mute the person }} </td>-->
-      <!-- </tr> -->
-    <!-- </div> -->
+<div class="row" style="margin-top:6.0em">
+  <div class="large-12 columns">
+    <a href="#/main" class="closingTime" style="background-color:#E95F44">End the session</a>
+  </div>
 </div>

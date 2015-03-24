@@ -1,3 +1,8 @@
+// This code is a duplicate of the code that exists in controllers.js.
+// Ideally, the factories would be separate out from the controllers in this fashion.
+// However, to limit moving parts in development, the logic utilized for the application currently exists in controllers.js.
+
+
 // PresenterRTC has two unique features:
 // - Its connect method establishes a peer connection with each
 //   audience member in the room. It does this by asking everyone 
