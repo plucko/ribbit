@@ -6,8 +6,8 @@
     </div>
     <div class="large-6 columns">
       <h1>Participants currently in the room</h1>
-      <ul ng-repeat="connection in connections">
-        <li> {{ connection.user }} </li>
+      <ul ng-repeat="user in audience">
+        <li ng-class="{speaking: user.speaking}"> {{ user.name }} </li>
       </ul>
     </div>
   </div>

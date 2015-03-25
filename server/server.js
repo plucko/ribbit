@@ -55,7 +55,7 @@ app.use(passport.session());
 passport.use(new GithubStrategy({
   clientID: githubApp.clientID,
   clientSecret: githubApp.secret,
-  callbackURL: 'http://3a3cddc1.ngrok.com/auth/github/callback'
+  callbackURL: 'http://127.0.0.1:8000/auth/github/callback'
 }, function(accessToken, refreshToken, profile, done){
   console.log('accessToken', accessToken);
   console.log('refreshToken', refreshToken);
