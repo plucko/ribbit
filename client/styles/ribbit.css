@@ -187,3 +187,7 @@ div.first a{
 .split h1{
   margin: 2.0em 0;
 }
+
+.speaking {
+  color: red;
+}
