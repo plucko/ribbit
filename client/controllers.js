@@ -95,21 +95,44 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   // The command will toggle based on the power state so the user is aware what will happen.
 
   console.log('all about the details ------------');
-  console.log($rootScope.details);
+  // console.log($rootScope.details);
 
+  $scope.thumbs = {
+    rockin: {order: 0, src: '../assets/noun_ily-sign_62772.png'},
+    up: {order: 1, src: '../assets/noun_thumbs-up_61040.png'},
+    middle: {order: 2, src: '../assets/noun_thumb_104590.png'},
+    down: {order: 3, src: '../assets/noun_thumbs-down_61036.png'},
+    sleep: {order: 4, src: '../assets/noun_sleep_10297.png'}
+  }
   var roomname = $rootScope.details.roomname.slice();
   var username = $rootScope.details.username.slice();
-
-  console.log('rn, un');
-  console.log(roomname);
-  console.log(username);
 
   $scope.micStatus = {power: false, command: "Turn on your mic!"};
   var ref = new Firebase('https://popping-inferno-6077.firebaseio.com/');
   var audienceSync = $firebaseObject(ref.child(roomname));
   audienceSync.$bindTo($scope, 'audience').then(function(){
+    $scope.audience.size ? $scope.audience.size++ : $scope.audience.size = 1;
     $scope.audience[username] = {name: username, speaking: false};
   });
+
+  $scope.leaveAudience = function(event){
+    $scope.audience.size--;
+    delete $scope.audience[username];
+  };
+
+  window.addEventListener('beforeunload', function(event){
+    var confirmationMessage = "Please use the exit button to leave the room, or a kitten will die.\n  _ _/|\n \\'o.0'\n =(___)=\n    U";
+    (event || window.event).returnValue = confirmationMessage;
+    return confirmationMessage;   
+  });
+
+  $scope.$on('$locationChangeStart', function(event){
+    $scope.leaveAudience();
+  });
+  $scope.$on('$destroy', function(event){
+    $window.onunload = undefined;
+  });
+
 
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
 
@@ -130,7 +153,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
       audienceRTC.connect({ roomname: roomName, presenter: presenter }, username);
       $scope.micStatus.command = 'Turn off your mic!';
       $scope.micStatus.power = true;
-      audienceSync[username].speaking = true;
+      $scope.audience[username].speaking = true;
     };
 
     // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
@@ -138,7 +161,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
       audienceRTC.disconnect({ roomname: roomName, presenter: presenter}, username);
       $scope.micStatus.command = 'Turn on your mic!';
       $scope.micStatus.power = false;
-      audienceSync[username].speaking = false;
+      $scope.audience[username].speaking = false;
     };
 
     // based on the mics power attribute, determines whether to open or close a connection.
@@ -201,9 +224,7 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
   var roomname = $rootScope.details.roomname.slice();
   var ref = new Firebase('https://popping-inferno-6077.firebaseio.com/');
   var audienceSync = $firebaseObject(ref.child(roomname));
-  audienceSync.$bindTo($scope, 'audience').then(function(){
-    // $scope.audience[username] = {name: username, speaking: false};
-  });
+  audienceSync.$bindTo($scope, 'audience').then(function(){});
 
   $scope.connections = [];
 
