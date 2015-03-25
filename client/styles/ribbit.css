@@ -199,7 +199,7 @@ div.first a{
   display: inline-block;
   transition: background-color 300ms ease-out;
   border-color: #007095;
-  margin: .02em;
+  margin: .2em;
 }
 
 .thumb:hover {

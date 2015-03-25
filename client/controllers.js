@@ -97,13 +97,13 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   console.log('all about the details ------------');
   // console.log($rootScope.details);
 
-  $scope.thumbs = {
-    rockin: {order: 0, src: '../assets/noun_ily-sign_62772.png'},
-    up: {order: 1, src: '../assets/noun_thumbs-up_61040.png'},
-    middle: {order: 2, src: '../assets/noun_thumb_104590.png'},
-    down: {order: 3, src: '../assets/noun_thumbs-down_61036.png'},
-    sleep: {order: 4, src: '../assets/noun_sleep_10297.png'}
-  }
+  $scope.thumbs = [
+    {name: 'rockin\'', src: '../assets/noun_ily-sign_62772.png'},
+    {name: 'thumbs up', src: '../assets/noun_thumbs-up_61040.png'},
+    {name: 'thumbs middle', src: '../assets/noun_thumb_104590.png'},
+    {name: 'thumbs down', src: '../assets/noun_thumbs-down_61036.png'},
+    {name: 'I\'m bored.', src: '../assets/noun_sleep_10297.png'}
+  ]
   var roomname = $rootScope.details.roomname.slice();
   var username = $rootScope.details.username.slice();
 
