@@ -172,7 +172,7 @@ div.padLeft{
 }
 
 div.first{
-  margin: 7em 0 5em 0;
+  margin: 2em 0 5em 0;
 }
 
 div.first a{
@@ -209,4 +209,10 @@ div.first a{
 
 .thumb-selected {
   background-color: #9F1E00;
+}
+
+#graph {
+  height: 500px;
+  width: auto;
+  background-color: red;
 }
