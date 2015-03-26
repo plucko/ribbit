@@ -98,11 +98,11 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   // console.log($rootScope.details);
 
   $scope.thumbs = [
-    {name: 'rockin\'', src: '../assets/noun_ily-sign_62772.png'},
-    {name: 'thumbs up', src: '../assets/noun_thumbs-up_61040.png'},
-    {name: 'thumbs middle', src: '../assets/noun_thumb_104590.png'},
-    {name: 'thumbs down', src: '../assets/noun_thumbs-down_61036.png'},
-    {name: 'I\'m bored.', src: '../assets/noun_sleep_10297.png'}
+    {name: 'rockin\'', src: '../assets/noun_ily-sign_62772.png', id: 0, selected: false},
+    {name: 'thumbs up', src: '../assets/noun_thumbs-up_61040.png', id: 1, selected: false},
+    {name: 'thumbs middle', src: '../assets/noun_thumb_104590.png', id: 2, selected: true},
+    {name: 'thumbs down', src: '../assets/noun_thumbs-down_61036.png', id: 3, selected: false},
+    {name: 'I\'m bored.', src: '../assets/noun_sleep_10297.png', id: 4, selected: false}
   ]
   var roomname = $rootScope.details.roomname.slice();
   var username = $rootScope.details.username.slice();
@@ -112,7 +112,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   var audienceSync = $firebaseObject(ref.child(roomname));
   audienceSync.$bindTo($scope, 'audience').then(function(){
     $scope.audience.size ? $scope.audience.size++ : $scope.audience.size = 1;
-    $scope.audience[username] = {name: username, speaking: false};
+    $scope.audience[username] = {name: username, speaking: false, thumb: 2};
   });
 
   $scope.leaveAudience = function(event){
@@ -129,9 +129,18 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   $scope.$on('$locationChangeStart', function(event){
     $scope.leaveAudience();
   });
+
   $scope.$on('$destroy', function(event){
-    $window.onunload = undefined;
+    $window.beforeunload = undefined;
   });
+
+  $scope.submitThumb = function(thumb){
+    $scope.audience[username].thumb = thumb;
+    $scope.thumbs.forEach(function(th){
+      if (th.id === thumb) th.selected = true;
+      else th.selected = false;
+    })
+  };
 
 
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)

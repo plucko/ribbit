@@ -206,3 +206,7 @@ div.first a{
 .thumb:hover {
   background-color: #0070A2;
 }
+
+.thumb-selected {
+  background-color: #9F1E00;
+}
