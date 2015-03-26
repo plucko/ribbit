@@ -191,3 +191,18 @@ div.first a{
 .speaking {
   color: red;
 }
+
+.thumb {
+  background-color: #008CBA;
+  height: 3em;
+  width: 3em;
+  display: inline-block;
+  transition: background-color 300ms ease-out;
+  border-color: #007095;
+  margin: .2em;
+  border-radius: .2em;
+}
+
+.thumb:hover {
+  background-color: #0070A2;
+}

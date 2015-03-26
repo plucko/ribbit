@@ -8,9 +8,11 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var db = require('./db-config.js');
+var db = require('./db-config.js').db;
+var mongoose = require('./db-config.js').mongoose;
 var User = require('./db-user.js');
 var url = require("url");
+var MongoStore = require('connect-mongo')(session);
 
 var app = express();
 
@@ -43,7 +45,13 @@ app.get('/', util.checkUser, function(req, res) {
 });
 
 // Prepare session for passport
-app.use(session({saveUninitialized: true, resave: true, secret: 'this is our secret'}));
+app.use(session({
+  saveUninitialized: true,
+  resave: true, 
+  secret: 'this is our secret',
+  key: 'session',
+  store: new MongoStore({url: 'mongodb://127.0.0.1/sessions'})
+}));
 
 // Use passport to authenticate
 app.use(passport.initialize());
