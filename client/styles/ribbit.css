@@ -200,6 +200,7 @@ div.first a{
   transition: background-color 300ms ease-out;
   border-color: #007095;
   margin: .2em;
+  border-radius: .2em;
 }
 
 .thumb:hover {
