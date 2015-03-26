@@ -1,19 +1,20 @@
-<div class="first" style="margin-top:18em">
+<div id="graph">graph!</div>
+<div class="first">
   <div class="large-12 columns">
     <div class="large-6 columns">
-      <h1>Connections count: {{connections.length}}</h1>
+      <h1>Participants: {{audience.size}}</h1>
       <div id="videos"></div>
     </div>
     <div class="large-6 columns">
-      <h1>Participants currently in the room</h1>
-      <ul ng-repeat="connection in connections">
-        <li> {{ connection.user }} </li>
+      <h1>Speaking:</h1>
+      <ul ng-repeat="user in audience">
+        <li ng-show="user.speaking"> {{ user.name }} </li>
       </ul>
     </div>
   </div>
 </div>
 
-<div class="row" style="margin-top:6.0em">
+<div class="row">
   <div class="large-12 columns">
     <a href="#/main" class="closingTime" style="background-color:#E95F44">End the session</a>
   </div>
