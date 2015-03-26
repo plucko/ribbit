@@ -1,5 +1,6 @@
 // After user login, send user to main page
 var User = require('./db-user.js');
+var Question = require('./db-question.js');
 var util = require('./utility.js');
 
 exports.loginUser = function(req, res){
@@ -118,4 +119,20 @@ exports.accessRoom = function(req, res, rooms, inputRoom){
   
   res.send('0');
   return rooms;
+};
+
+exports.saveQuestion = function(req, res) {
+  var question = req.body.question;
+  var user = req.user.id; // probably need to change
+
+  new Question({
+    question: question,
+    user: user
+  }).save(function(err, question) {
+    if (err) {
+      res.status(400).send('There was a problem. Please resubmit your question.');
+    } else {
+      res.status(201).send(question);
+    }
+  });
 };

@@ -1,7 +1,8 @@
 var micApp = angular.module('micApp', [
   'ngRoute',
   'micControllers',
-  'micServices'
+  'micServices',
+  'firebase'
 ]);
 
 micApp.config(['$routeProvider', '$httpProvider', 

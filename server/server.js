@@ -8,9 +8,11 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var db = require('./db-config.js');
+var db = require('./db-config.js').db;
+var mongoose = require('./db-config.js').mongoose;
 var User = require('./db-user.js');
 var url = require("url");
+var MongoStore = require('connect-mongo')(session);
 
 var app = express();
 
@@ -43,7 +45,13 @@ app.get('/', util.checkUser, function(req, res) {
 });
 
 // Prepare session for passport
-app.use(session({saveUninitialized: true, resave: true, secret: 'this is our secret'}));
+app.use(session({
+  saveUninitialized: true,
+  resave: true, 
+  secret: 'this is our secret',
+  key: 'session',
+  store: new MongoStore({url: 'mongodb://127.0.0.1/sessions'})
+}));
 
 // Use passport to authenticate
 app.use(passport.initialize());
@@ -55,7 +63,7 @@ app.use(passport.session());
 passport.use(new GithubStrategy({
   clientID: githubApp.clientID,
   clientSecret: githubApp.secret,
-  callbackURL: 'http://3a3cddc1.ngrok.com/auth/github/callback'
+  callbackURL: 'http://127.0.0.1:8000/auth/github/callback'
 }, function(accessToken, refreshToken, profile, done){
   console.log('accessToken', accessToken);
   console.log('refreshToken', refreshToken);
@@ -132,6 +140,10 @@ app.post('/rooms/asAudience', util.checkUser, function(req, res, next){
   // console.log('post request to /rooms/asAudience, logging req.user: ', req.user);
   // console.log('post request to /rooms/asAudience, logging req.session: ', req.session);
   handler.checkPresenter(req, res, rooms);
+});
+
+app.post('/questions', util.checkUser, function(req, res) {
+  handler.saveQuestion(req, res);
 });
 
 var server = app.listen(8000, function(){

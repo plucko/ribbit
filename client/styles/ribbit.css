@@ -172,7 +172,7 @@ div.padLeft{
 }
 
 div.first{
-  margin: 7em 0 5em 0;
+  margin: 2em 0 5em 0;
 }
 
 div.first a{
@@ -186,4 +186,33 @@ div.first a{
 
 .split h1{
   margin: 2.0em 0;
+}
+
+.speaking {
+  color: red;
+}
+
+.thumb {
+  background-color: #008CBA;
+  height: 3em;
+  width: 3em;
+  display: inline-block;
+  transition: background-color 300ms ease-out;
+  border-color: #007095;
+  margin: .2em;
+  border-radius: .2em;
+}
+
+.thumb:hover {
+  background-color: #0070A2;
+}
+
+.thumb-selected {
+  background-color: #9F1E00;
+}
+
+#graph {
+  height: 500px;
+  width: auto;
+  background-color: red;
 }

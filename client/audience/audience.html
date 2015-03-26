@@ -1,7 +1,10 @@
 <div class="row first">
   <div class="large-12 columns">
     <video id="local-video" autoplay muted style="width:40%;" ng-src="{{localStream}}"></video>
-    <button ng-click="connectionManager()">{{ micStatus.command }}</button>  
+    <button ng-click="connectionManager()">{{ micStatus.command }}</button>
+    <div class="thumb" ng-repeat="thumb in thumbs" ng-click="submitThumb(thumb.id)" ng-class="thumb.selected ? 'thumb-selected' : '' ">
+      <img src="{{thumb.src}}">
+    </div>
   </div>
 </div>
 <div class="row first">

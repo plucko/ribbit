@@ -19,11 +19,11 @@ micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Aut
       console.log(result);
     };
 
-    console.log(username, password);
+    // console.log(username, password);
 
     var authPromise = Auth.normalLogin(username, password);
 
-    console.log(authPromise);
+    // console.log(authPromise);
 
     authPromise.then(function() {
       console.log('promise has resolved');
@@ -88,16 +88,62 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
 
 // The AudienceController utilizes $rootScope to pass user information between controllers.
 // This is not an ideal implementation, and the 'Room' service should be utilized instead.
-micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '$rootScope', function($scope, $sce, audienceRTC, $rootScope) {
+micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '$rootScope',
+'$firebaseObject', function($scope, $sce, audienceRTC, $rootScope, $firebaseObject) {
   // Initialize micStatus with default settings of power = off (false) and the option to "Turn on your mic!"
   // The power boolean is utilized to determine whether the views mic button will open a new peer connection with the presenter or close an existing connection.
   // The command will toggle based on the power state so the user is aware what will happen.
+
   console.log('all about the details ------------');
-  console.log($rootScope.details);
+  // console.log($rootScope.details);
+
+  $scope.thumbs = [
+    {name: 'rockin\'', src: '../assets/noun_ily-sign_62772.png', id: 0, selected: false},
+    {name: 'thumbs up', src: '../assets/noun_thumbs-up_61040.png', id: 1, selected: false},
+    {name: 'thumbs middle', src: '../assets/noun_thumb_104590.png', id: 2, selected: true},
+    {name: 'thumbs down', src: '../assets/noun_thumbs-down_61036.png', id: 3, selected: false},
+    {name: 'I\'m bored.', src: '../assets/noun_sleep_10297.png', id: 4, selected: false}
+  ]
+  var roomname = $rootScope.details.roomname.slice();
+  var username = $rootScope.details.username.slice();
 
   $scope.micStatus = {power: false, command: "Turn on your mic!"};
+  var ref = new Firebase('https://popping-inferno-6077.firebaseio.com/');
+  var audienceSync = $firebaseObject(ref.child(roomname));
+  audienceSync.$bindTo($scope, 'audience').then(function(){
+    $scope.audience.size ? $scope.audience.size++ : $scope.audience.size = 1;
+    $scope.audience[username] = {name: username, speaking: false, thumb: 2};
+  });
+
+  $scope.leaveAudience = function(event){
+    $scope.audience.size--;
+    delete $scope.audience[username];
+  };
+
+  window.addEventListener('beforeunload', function(event){
+    var confirmationMessage = "Please use the exit button to leave the room, or a kitten will die.\n  _ _/|\n \\'o.0'\n =(___)=\n    U";
+    (event || window.event).returnValue = confirmationMessage;
+    return confirmationMessage;   
+  });
+
+  $scope.$on('$locationChangeStart', function(event){
+    $scope.leaveAudience();
+  });
+
+  $scope.$on('$destroy', function(event){
+    $window.beforeunload = undefined;
+  });
+
+  $scope.submitThumb = function(thumb){
+    $scope.audience[username].thumb = thumb;
+    $scope.thumbs.forEach(function(th){
+      if (th.id === thumb) th.selected = true;
+      else th.selected = false;
+    })
+  };
 
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
+
   audienceRTC.ready(function () {
     $scope.roomName = $rootScope.details.roomname.slice();
     $scope.presenter = $rootScope.details.presenter.slice();
@@ -115,6 +161,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
       audienceRTC.connect({ roomname: roomName, presenter: presenter }, username);
       $scope.micStatus.command = 'Turn off your mic!';
       $scope.micStatus.power = true;
+      $scope.audience[username].speaking = true;
     };
 
     // audienceRTC.disconnect will trigger baseRTC's disconnectFromUser method.
@@ -122,6 +169,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
       audienceRTC.disconnect({ roomname: roomName, presenter: presenter}, username);
       $scope.micStatus.command = 'Turn on your mic!';
       $scope.micStatus.power = false;
+      $scope.audience[username].speaking = false;
     };
 
     // based on the mics power attribute, determines whether to open or close a connection.
@@ -135,7 +183,7 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
 
     // if you your handler updates the $scope, you need to call $scope.$apply
     // so angular knows to run a digest.
-    $scope.$apply();
+    // $scope.$apply();
   });
   $scope.toggle = function() {
     console.log("toggle");
@@ -169,7 +217,9 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
 
 // The AudienceController utilizes $rootScope to pass user information between controllers.
 // This is not an ideal implementation, and the 'Room' service should be utilized instead.  
-micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', '$rootScope', function($scope, $sce, presenterRTC, $rootScope) {
+micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', '$rootScope',
+'$firebaseObject', function($scope, $sce, presenterRTC, $rootScope, $firebaseObject) {
+
   var addVideoElem = function (url) {
     console.log('adding video!');
     var vid = document.createElement('video');
@@ -179,7 +229,26 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
     document.getElementById('videos').appendChild(vid);
   };
 
+  var roomname = $rootScope.details.roomname.slice();
+  var ref = new Firebase('https://popping-inferno-6077.firebaseio.com/');
+  var audienceSync = $firebaseObject(ref.child(roomname));
+  audienceSync.$bindTo($scope, 'audience').then(function(){
+    $scope.pollThumbs();
+  });
+
+  $scope.thumbsData = [0,0,0,0,0]
+
+  $scope.pollThumbs = function(){
+    console.log('poll');
+    $scope.thumbsData = [0,0,0,0,0];
+    _.each($scope.audience, function(member){
+      if (typeof member === 'object' && member !== null) $scope.thumbsData[member.thumb]++;
+    });
+    console.log($scope.thumbsData);
+  };
+
   $scope.connections = [];
+
   console.log($rootScope.details);
   // only connect once our RTC manager is ready!
   presenterRTC.ready(function () {
@@ -276,7 +345,7 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
 micControllers.config(['baseRTCProvider', function(baseRTCProvider) {
   console.log('hey! in the config');
   
-  baseRTCProvider.setSignalServer('ws://3a3cddc1.ngrok.com');
+  baseRTCProvider.setSignalServer('ws://127.0.0.1:3434');
   // baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
   // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
 
