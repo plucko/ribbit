@@ -22,7 +22,19 @@
     "url": "https://github.com/plucky-oatmeal/plucky-oatmeal/issues"
   },
   "homepage": "https://github.com/plucky-oatmeal/plucky-oatmeal",
-  "devDependencies": {},
+  "devDependencies": {
+    "grunt-casperjs": "^2.1.0",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-contrib-jshint": "^0.11.1",
+    "grunt-contrib-uglify": "^0.8.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-express-server": "^0.4.19",
+    "grunt-karma": "^0.10.1",
+    "grunt-mocha": "^0.4.12",
+    "karma": "^0.12.31"
+  },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "2.9.14",
