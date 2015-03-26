@@ -142,7 +142,6 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
     })
   };
 
-
   // only provide connect and disconnect functionality after ready (signal server is up, we have a media stream)
 
   audienceRTC.ready(function () {
@@ -233,7 +232,20 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
   var roomname = $rootScope.details.roomname.slice();
   var ref = new Firebase('https://popping-inferno-6077.firebaseio.com/');
   var audienceSync = $firebaseObject(ref.child(roomname));
-  audienceSync.$bindTo($scope, 'audience').then(function(){});
+  audienceSync.$bindTo($scope, 'audience').then(function(){
+    $scope.pollThumbs();
+  });
+
+  $scope.thumbsData = [0,0,0,0,0]
+
+  $scope.pollThumbs = function(){
+    console.log('poll');
+    $scope.thumbsData = [0,0,0,0,0];
+    _.each($scope.audience, function(member){
+      if (typeof member === 'object' && member !== null) $scope.thumbsData[member.thumb]++;
+    });
+    console.log($scope.thumbsData);
+  };
 
   $scope.connections = [];
 
