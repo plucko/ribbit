@@ -142,6 +142,10 @@ app.post('/rooms/asAudience', util.checkUser, function(req, res, next){
   handler.checkPresenter(req, res, rooms);
 });
 
+app.post('/questions', util.checkUser, function(req, res) {
+  handler.saveQuestion(req, res);
+});
+
 var server = app.listen(8000, function(){
     console.log('App connected');
 });
