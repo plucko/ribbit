@@ -6,7 +6,6 @@ micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Aut
   $scope.normalLogin = function(username, password) {
 
     var successCb = function(result) {
-      console.log('made it to successCB of normalLogin controller');
       $location.url('/main');
     };
 
@@ -15,20 +14,16 @@ micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Aut
       $location.url('/');
     };
 
-    var notifyCb = function(result) {
-      console.log(result);
-    };
-
-    console.log(username, password);
+    // var notifyCb = function(result) {
+    //   console.log(result);
+    // };
 
     var authPromise = Auth.normalLogin(username, password);
 
-    console.log(authPromise);
-
     authPromise.then(function() {
-      console.log('promise has resolved');
+      // console.log('promise has resolved');
     }).finally(function(){
-      console.log('do something');
+      // console.log('do something');
     });
 
     // authPromise
@@ -42,32 +37,28 @@ micControllers.controller('AuthControl', ['$scope', 'Auth', function($scope, Aut
   };
 
   $scope.signup = function(username, password) {
-    console.log('signing up');
     Auth.signup(username, password)
       .catch(function(err) {
-        console.error(err);
+        // console.error(err);
       })
       .then(function(result) {
-        console.log(result);
+        // console.log(result);
       });
   };
 
   $scope.gitLogin = function() {
     Auth.gitLogin();
-    console.log('gitlogin');
   };
 
 
 }]);
 
 micControllers.controller('MainControl', ['$scope', '$location', 'Room', function($scope, $location, Room) {
-  $scope.room;
+  // $scope.room;
 
   $scope.createRoom = function(room) {
     room = room || 'testRoom';
     var roomCheck = Room.tryToMakeRoom(room);
-    console.log(roomCheck);
-    console.log('let\'s create a room!');
   };
 
   $scope.joinRoom = function(room) {
@@ -78,10 +69,7 @@ micControllers.controller('MainControl', ['$scope', '$location', 'Room', functio
     // We will use the presenter string/object to tell the audienceRTC who to
     // connect to.
 
-    var returnPresenter = Room.returnPresenter($scope, room); 
-    console.log('logging the returnPresenter variable: ', returnPresenter);
-    console.log('logging out $scope.room to see if we stored room info: ', $scope.room);
-    console.log('let\'s join a room!' , room);
+    var returnPresenter = Room.returnPresenter($scope, room);
   };
 
 }]);
@@ -92,8 +80,6 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
   // Initialize micStatus with default settings of power = off (false) and the option to "Turn on your mic!"
   // The power boolean is utilized to determine whether the views mic button will open a new peer connection with the presenter or close an existing connection.
   // The command will toggle based on the power state so the user is aware what will happen.
-  console.log('all about the details ------------');
-  console.log($rootScope.details);
 
   $scope.micStatus = {power: false, command: "Turn on your mic!"};
 
@@ -138,40 +124,16 @@ micControllers.controller('AudienceControl', ['$scope', '$sce', 'audienceRTC', '
     $scope.$apply();
   });
   $scope.toggle = function() {
-    console.log("toggle");
+    // console.log("toggle");
   };
-  audienceRTC.on('onnegotiationneeded', function(event, remoteUser, pc){
-    console.log('onnegotiationneeded -------');
-  });
-  audienceRTC.on('ondatachannel', function(event, remoteUser, pc){
-    console.log('ondatachannel -------');
-  });
-  audienceRTC.on('onidpassertionerror', function(event, remoteUser, pc){
-    console.log('onidpassertionerror -------');
-  });
-  audienceRTC.on('onidentityresult', function(event, remoteUser, pc){
-    console.log('onidentityresult -------');
-  });
-  audienceRTC.on('onidentityresult', function(event, remoteUser, pc){
-    console.log('onidentityresult -------');
-  });
-  audienceRTC.on('onidpvalidationerror', function(event, remoteUser, pc){
-    console.log('onidpvalidationerror -------');
-  });
-  audienceRTC.on('onpeeridentity', function(event, remoteUser, pc){
-    console.log('onpeeridentity -------');
-  });
-  audienceRTC.on('onsignalingstatechange', function(event, remoteUser, pc){
-    console.log('onsignalingstatechange -------');
-  });
+
 }]);
 
 
 // The AudienceController utilizes $rootScope to pass user information between controllers.
-// This is not an ideal implementation, and the 'Room' service should be utilized instead.  
+// This is not an ideal implementation, and the 'Room' service should be utilized instead.
 micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC', '$rootScope', function($scope, $sce, presenterRTC, $rootScope) {
   var addVideoElem = function (url) {
-    console.log('adding video!');
     var vid = document.createElement('video');
     // vid.muted = true;
     vid.autoplay = true;
@@ -180,68 +142,16 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
   };
 
   $scope.connections = [];
-  console.log($rootScope.details);
+
   // only connect once our RTC manager is ready!
   presenterRTC.ready(function () {
     // the first arg here is the room object, the second is the name of the presenter.
     // $scope.createRoom = function(roomName, presenterName){
       // console.log('testing');
-      console.log($rootScope.details.roomname);
-      console.log($rootScope.details.presenter);
-      presenterRTC.connect({ name: $rootScope.details.roomname, presenter: $rootScope.details.presenter}, $rootScope.details.presenter); 
-      console.log('testingEnd');
+      presenterRTC.connect({ name: $rootScope.details.roomname, presenter: $rootScope.details.presenter}, $rootScope.details.presenter);
     // };
   });
 
-  presenterRTC.on('onnegotiationneeded', function(event, remoteUser, pc){
-    console.log('onnegotiationneeded -------');
-  });
-  presenterRTC.on('ondatachannel', function(event, remoteUser, pc){
-    console.log('ondatachannel -------');
-  });
-  presenterRTC.on('onidpassertionerror', function(event, remoteUser, pc){
-    console.log('onidpassertionerror -------');
-  });
-  presenterRTC.on('onidentityresult', function(event, remoteUser, pc){
-    console.log('onidentityresult -------');
-  });
-  presenterRTC.on('onidentityresult', function(event, remoteUser, pc){
-    console.log('onidentityresult -------');
-  });
-  presenterRTC.on('onidpvalidationerror', function(event, remoteUser, pc){
-    console.log('onidpvalidationerror -------');
-  });
-  presenterRTC.on('onpeeridentity', function(event, remoteUser, pc){
-    console.log('onpeeridentity -------');
-  });
-  presenterRTC.on('onsignalingstatechange', function(event, remoteUser, pc){
-    console.log('onsignalingstatechange -------');
-  });
-  
-  // In order to properly utilize the onremovestream listener, the handshake between the peers must be renegotiated.
-  // http://stackoverflow.com/questions/16478486/webrtc-function-removestream-dont-launch-event-onremovestream-javascript
-  presenterRTC.on('onremovestream', function(event, remoteUser, pc){
-    console.log('we are in here, finally -------');
-    console.log(event);
-    console.log(remoteUser);
-    console.log(pc);
-    // for(var i = $scope.connections.length-1; i >= 0; i--) {
-    //   if( $scope.connections[i].user === remoteUser) $scope.connections.splice(i,1);
-    //   return;
-    // }
-  });
-
-  presenterRTC.on('oniceconnectionstatechange', function(event, remoteUser, pc){
-    console.log('!!!!!!!!!!!!ice connection changed');
-    console.log(event);
-    console.log(remoteUser);
-    console.log(pc);
-    // for(var i = $scope.connections.length-1; i >= 0; i--) {
-    //   console.log($scope.connections[i]);
-    //   if( $scope.connections[i].user === remoteUser) $scope.connections.splice(i,1);
-    //   return;
-    // }
-  });
 
   // register event handlers for peer connection events. MDN has a description of these events.
   // the remote user and peerconnection object are the last two arguments for any handler
@@ -269,20 +179,19 @@ micControllers.controller('PresenterControl', ['$scope', '$sce', 'presenterRTC',
 
   $scope.users = [{'name': 'hey'}, {'name': 'bye'}, {'name': 'sigh'}];
   $scope.mute = function(speaker) {
-    console.log('mute function responds', speaker);
+    // console.log('mute function responds', speaker);
   };
 }]);
 
 micControllers.config(['baseRTCProvider', function(baseRTCProvider) {
-  console.log('hey! in the config');
-  
+
   baseRTCProvider.setSignalServer('ws://3a3cddc1.ngrok.com');
   // baseRTCProvider.setSignalServer('ws://localhost:3434'); //normally must be set up by app
   // baseRTCProvider.setSignalServer('ws://307a1d89.ngrok.com'); //normally must be set up by app
 
   baseRTCProvider.setPeerConnectionConfig({
     'iceServers': [
-      {'url': 'stun:stun.services.mozilla.com'}, 
+      {'url': 'stun:stun.services.mozilla.com'},
       {'url': 'stun:stun.l.google.com:19302'}
     ]
   });
