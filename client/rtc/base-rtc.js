@@ -1,10 +1,10 @@
 // RibbitBaseRTC allows you to manage multiple WebRTC peer connections.
 // It establishes a connection with the signal server and processes
-// incoming messages, creating new peer connections in response to 
+// incoming messages, creating new peer connections in response to
 // offers, updating remote descriptions in response to answers, and
 // adding ice candidates as they come in.
 //
-// It does not manage media streams or setting event handlers for 
+// It does not manage media streams or setting event handlers for
 // onaddstream, etc. Subclasses or clients can add these after
 // initializing the base class or extend createConnectionTo.
 
@@ -21,7 +21,7 @@ var makeBaseRTC = function (options) {
     // We are just storing the callback function here for later access via the maybeReady helper function.
     onSetupComplete = fn;
     // Check if all setup tasks are complete utilizing the maybeReady helper function defined below.
-    maybeReady(); 
+    maybeReady();
   };
 
   // This function checks to see if all the tasks required for setup are complete.
@@ -32,12 +32,12 @@ var makeBaseRTC = function (options) {
     var done = true;
     for (var task in setupTasks) {
       // If any task status is false, do not fire onSetupComplete.
-      done = done && setupTasks[task]; 
+      done = done && setupTasks[task];
     }
-    if (done) onSetupComplete(); 
+    if (done) onSetupComplete();
   };
 
-  // Connect to our signal server. We talk with other clients over 
+  // Connect to our signal server. We talk with other clients over
   // this server in order to establish peer connections to them.
   baseRTC.signalServer = new WebSocket(options.signalServer);
   //Wait for signal server connection to open before we're "ready"
@@ -49,11 +49,11 @@ var makeBaseRTC = function (options) {
 
   // If this client will be streaming media to a peer, getMedia should be
   // called before initiating the handshake (offer/answer) process. (Adding
-  // a stream after connection is established requires the connection to be 
+  // a stream after connection is established requires the connection to be
   // renegotiated, a process we don't support now.)
   //
   // This method retrieves the media streams specified in the constraints
-  // parameter. It saves the streams so we can pass them to our peer connections 
+  // parameter. It saves the streams so we can pass them to our peer connections
   // as we connect to them later.
   baseRTC.getMedia = function (constraints, success, error) {
     // Defines which hardware components the user must grant ribbit access to (video = camera, audio = microphone).
@@ -61,10 +61,10 @@ var makeBaseRTC = function (options) {
     error = error || function () {};
 
     setupTasks.getMedia = false;
-    
+
     // Define success function to handle stream after user agrees to grant access to the microphone.
     var mediaSuccess = function (stream) {
-      this.localStream = stream; 
+      this.localStream = stream;
       success && success(stream);
 
       setupTasks.getMedia = true;
@@ -83,7 +83,7 @@ var makeBaseRTC = function (options) {
 
   // Maintain multiple peer connections, indexed by remote user
   baseRTC.peerConnections = {};
-  
+
 
 
   // Create a peer connection, and set it up to trickle ICE candidates
@@ -105,7 +105,6 @@ var makeBaseRTC = function (options) {
     var that = this.handlers;
     for (var e in that) {
       pc[e] = function handler () {
-        console.log(this);
         var func = that[handler.key];
         var args = Array.prototype.slice.call(arguments);
         args.push(remoteUser, pc);
@@ -135,7 +134,7 @@ var makeBaseRTC = function (options) {
   };
 
   // Subclasses must implement -- some will connect to a room, others to a user.
-  // In either case, the room is the room they are connecting to. It takes an 
+  // In either case, the room is the room they are connecting to. It takes an
   // object of the form: { name: 'living room', presenter: 'fred' }. The user
   // is the user they are connecting as (not who they are connecting to).
   baseRTC.connect = function (room, user) {
@@ -148,15 +147,15 @@ var makeBaseRTC = function (options) {
 
   // Ask all clients in room to send an offer. They all generate offers that
   // we can then give an answer to. Why do this? Because we don't know who else
-  // is in the room, so we don't know what peer connections to generate so we can 
-  // create offers. So instead, we ask for offers and now we know which peer 
+  // is in the room, so we don't know what peer connections to generate so we can
+  // create offers. So instead, we ask for offers and now we know which peer
   // connections to create.
   // TODO: fix the hacky way we're sending a message to the entire room. It shouldn't go to 'everyone'
   baseRTC.connectToRoom = function (room) {
-    this._send({ 'requester': this.me }, 'everyone', 'request-for-offer'); 
+    this._send({ 'requester': this.me }, 'everyone', 'request-for-offer');
   };
 
-  // Create peer connection to a specific user and send them an offer. 
+  // Create peer connection to a specific user and send them an offer.
   baseRTC.connectToUser = function (remoteUser) {
     var pc = this.createPeerConnection(remoteUser);
     // createOffer method generates an offer (SDP session description) that will be sent to peer.
@@ -164,13 +163,13 @@ var makeBaseRTC = function (options) {
       // Before the offer is sent to the peer, the local description must be set to match the offer.
       pc.setLocalDescription(description, function () {
         // The offer is stringified utilizing the _send helper method below.
-        this._send(description, remoteUser, 'offer'); 
+        this._send(description, remoteUser, 'offer');
       }.bind(this));
     }.bind(this), function (err) { console.log('offer erorr: ', err); });
   };
 
   // Close peer connection to a specific user.
-  // This method gets called by an audience member to turn off their mic and stop audio from streaming 
+  // This method gets called by an audience member to turn off their mic and stop audio from streaming
   baseRTC.disconnectFromUser = function(remoteUser){
     // Lookup user in peerConnections object;
     var pc = this.peerConnections[remoteUser];
@@ -179,7 +178,7 @@ var makeBaseRTC = function (options) {
     // pc.close();
   };
 
-  // Helper method to send a message to a specific recipient. Make sure all 
+  // Helper method to send a message to a specific recipient. Make sure all
   // messages are sent with a similar format. In particular, we need all messages
   // to have a sender, recipient, toom, and type. Otherwise, our onmessage handler
   // doesn't know what to do. See the handler for details on how these fields are used.
@@ -188,7 +187,7 @@ var makeBaseRTC = function (options) {
     this.signalServer.send(JSON.stringify({
       sender: this.me,
       room: this.room,
-      recipient: recipient, 
+      recipient: recipient,
       type: messageType,
       contents: message
     }));
@@ -199,19 +198,19 @@ var makeBaseRTC = function (options) {
   var onMessage = function (message) {
     var data = JSON.parse(message.data);
 
-    // Screen out messages we don't care about. This is a hack to make up 
+    // Screen out messages we don't care about. This is a hack to make up
     // for the signal server sending everything to everyone. Really, the
     // signal server should send a message if and only if we need to see it.
     if (!data.sender) return;
-    if (data.recipient !== this.me && 
-        (data.recipient !== 'everyone' || 
+    if (data.recipient !== this.me &&
+        (data.recipient !== 'everyone' ||
           data.sender === this.me)) {
           return;
-    }           
+    }
     // Super useful for debugging. Most issues are somewhere in this function.
-    console.log(data);
+    // console.log(data);
 
-    // For offers and request-for-offers, we create a new peer connection, 
+    // For offers and request-for-offers, we create a new peer connection,
     // even if we already have one. For ice candidates and answers, we use
     // the peer connection we already have.
     var pc;
@@ -233,12 +232,12 @@ var makeBaseRTC = function (options) {
         });
       });
 
-    // Send an offer if asked  
+    // Send an offer if asked
     } else if (data.type === 'request-for-offer') {
       pc = this.createPeerConnection(data.sender);
       this.connectToUser(data.contents.requester);
 
-    // Respond to answers by just updating our remote description 
+    // Respond to answers by just updating our remote description
     } else if (data.type === 'answer') {
       pc = this.peerConnections[data.sender];
       pc.setRemoteDescription(new RTCSessionDescription(data.contents));
@@ -253,7 +252,7 @@ var makeBaseRTC = function (options) {
       console.log('baseRTC:onMessage - unhandled message type: ' + data.type, data);
     }
   };
-  
+
   // Use onMessage to handle messages coming from signal server
   baseRTC.signalServer.onmessage = onMessage.bind(baseRTC);
 
@@ -293,10 +292,10 @@ var makeBaseRTC = function (options) {
 // ```
 // angular.module('yourApp')
 //  .config(['baseRTCProvider', function(baseRTCProvider) {
-//     baseRTCProvider.setSignalServer('ws://localhost:3434'); 
+//     baseRTCProvider.setSignalServer('ws://localhost:3434');
 //     baseRTCProvider.setPeerConnectionConfig({
 //       'iceServers': [
-//         {'url': 'stun:stun.services.mozilla.com'}, 
+//         {'url': 'stun:stun.services.mozilla.com'},
 //         {'url': 'stun:stun.l.google.com:19302'}
 //       ]
 //     });
@@ -323,11 +322,11 @@ angular.module('ribbitBaseRTC', ['ngSanitize'])
         throw Error('RTC Config Error: you must set the peer connection configu in angular.config, e.g.: BaseRTCProvider.setPeerConnectionConfig({iceServers: [{url: <url>}, {url: <url>}]})');
       }
 
-      return makeBaseRTC({ 
-        signalServer: signalServer, 
-        peerConnectionConfig: peerConnectionConfig 
+      return makeBaseRTC({
+        signalServer: signalServer,
+        peerConnectionConfig: peerConnectionConfig
       });
-    }];  
+    }];
   });
 
 

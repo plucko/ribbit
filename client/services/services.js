@@ -9,14 +9,13 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
   // Taken and adapted from source code found in article
   // https://vickev.com/#!/article/authentication-in-single-page-applications-node-js-passportjs-angularjs
-  
+
 
   result.tryToMakeRoom = function(room){
     // Initialize a new promise
     var deferred = $q.defer();
 
     var successCb = function(result) {
-      console.log('logging the success result from calling the createRoom function', result);
       $location.url('/presenter');
     };
 
@@ -26,23 +25,22 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     };
 
     var notifyCb = function(result) {
-      console.log('logging the notification result from calling the createRoom function', result);
+      // console.log('logging the notification result from calling the createRoom function', result);
     };
 
     // Make an AJAX call to check if the user is logged in
     $http.post('/rooms', {roomname: room}).success(function(result){
       // Authenticated
-      
+
       // Interacts with server code because server will be written something like
       // app.get('/loggedin', function(req, res) {
-      // res.send(req.isAuthenticated() ? req.user : '0'); }); 
+      // res.send(req.isAuthenticated() ? req.user : '0'); });
       if (result !== '0') {
 
         /*$timeout(deferred.resolve, 0);*/
 
         $rootScope.details = {'roomname': room, 'presenter': result.rooms[room].presenter};
         $rootScope.message = 'Room successfully created!';
-        console.log('successful post request to /rooms: About to resolve the promise.');
         deferred.resolve(result);
       }
       // Not Authenticated
@@ -69,10 +67,8 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     var deferred = $q.defer();
 
     var successCb = function(result) {
-      console.log('logging returnPresenter function\'s success result:', result);
       $scope.room = result;
       $location.url('/audience');
-      console.log('inside the joinRoom function, logging out $scope.room: ', $scope.room);
       return result;
     };
 
@@ -82,7 +78,7 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
     };
 
     var notifyCb = function(result) {
-      console.log(result);
+      // console.log(result);
     };
 
     $http.post('/rooms/asAudience', {roomname: room}).success(function(result){
@@ -90,14 +86,12 @@ function roomFactory($http, $q, $timeout, $http, $location, $rootScope) {
         $rootScope.details = {'roomname': result.roomname, 'presenter': result.presenter, 'username': result.username};
         $rootScope.message = 'Found the room! Connecting you now.';
         // $rootScope.details = result;
-        console.log('Found room and returning room info (result object)', result);
         deferred.resolve(result);
       } else {
         $rootScope.message = 'Room does not exist!';
-        console.log('Did not find room, returning room info (result object)', result);
         deferred.reject(result);
         $location.url('#/main');
-      } 
+      }
     });
 
     return deferred.promise.catch(function(err) {
@@ -118,7 +112,6 @@ function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
     $http.post('/login', {data: {username: username, password: password}}).success(function(result){
       if (result !== '0') {
-        console.log('result !== 0', result);
         deferred.resolve(result);
       }
       else {
@@ -136,7 +129,6 @@ function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
     $http.post('/signup', {data: {username: username, password: password}}).success(function(result){
       if (result !== '0') {
-        console.log('result !== 0', result);
         deferred.resolve(result);
       }
       else {
@@ -148,19 +140,6 @@ function authFactory($http, $q, $timeout, $http, $location, $rootScope) {
 
     return deferred.promise;
   };
-
-
-
-    //   .get('/auth', {headers: {'Access-Control-Allow-Origin': 'http://127.0.0.1:8000/' }}).success(function(result){
-    //   if (result !== '0')
-    //     deferred.resolve(result);
-    //   else {
-    //     $rootScope.message = 'gitLogin failed, don\'t know why.';
-    //     deferred.reject();
-    //     $location.url('/');
-    //   }
-    // });
-
 
   return result;
 
