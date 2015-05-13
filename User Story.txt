@@ -1,7 +1,0 @@
-Client/Student:
-  Goes to ribbit.com, sees a universal landing page.
-  Signs in with his username and password that is tied to this site.
-    We can also offer the option to sign in through Github/Facebook/whatever.
-  Client updates to reflect the signed in state
-
-Admin/Teacher:  
